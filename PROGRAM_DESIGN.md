@@ -1,239 +1,233 @@
-# 卡牌程序设计说明
+# 卡牌原型程序设计说明
 
-## 1. 结构概览
+## 1. 目标
 
-当前实现按三层组织：
+这个原型的目标不是把玩法一次性做满，而是先把以下几件事搭稳：
 
-- 数据层
-  - 负责关卡配置、卡牌初始数据、布局数据
-  - 主要文件：[LevelDefinition.h](./Classes/tools/LevelDefinition.h)、[LevelLoader.cpp](./Classes/tools/LevelLoader.cpp)、[demo_level.json](./Resources/res/levels/demo_level.json)
+- 主牌区点击匹配
+- 备用牌堆翻牌
+- Undo / Reset
+- 关卡数据外置
+- 关卡合法性和可解性检查
 
-- 逻辑层
-  - 负责规则判断、状态变更、Undo 数据记录
-  - 主要文件：[GameState.h](./Classes/cardgame/GameState.h)、[GameState.cpp](./Classes/cardgame/GameState.cpp)、[GameCommand.h](./Classes/cardgame/GameCommand.h)、[GameCommand.cpp](./Classes/cardgame/GameCommand.cpp)
+代码结构上，当前版本优先保证两件事：
 
-- 视图层
-  - 负责显示、输入、动画、弹层
-  - 主要文件：[CardGameScene.cpp](./Classes/CardGameScene.cpp)、[CardView.cpp](./Classes/cardgame/CardView.cpp)、[GameOverlayView.h](./Classes/cardgame/GameOverlayView.h)、[GameOverlayView.cpp](./Classes/cardgame/GameOverlayView.cpp)
+- 后续加关卡时，尽量不改场景代码
+- 后续加新操作和新回退类型时，改动范围可控
 
-- 场景装配层
-  - 负责关卡启动和运行时入口装配
-  - 主要文件：[LevelSessionLoader.h](./Classes/cardgame/LevelSessionLoader.h)、[LevelSessionLoader.cpp](./Classes/cardgame/LevelSessionLoader.cpp)
+## 2. 当前结构
 
-维护原则：
+### 2.1 模块划分
 
-- 关卡数据调整，优先修改 JSON
-- 玩法规则调整，修改 `GameState`
-- Undo 能力扩展，修改 `GameCommand` 和 `GameDelta`
-- UI 叠层调整，修改 `GameOverlayView`
-- 关卡启动流程调整，修改 `LevelSessionLoader`
-- 输入和动画调整，修改 `CardGameScene` 或 `CardView`
+当前工程按“数据、规则、表现、装配”分层：
 
-## 2. 维护规则
+- 数据定义
+  - `Classes/tools/LevelDefinition.h`
+  - 定义关卡文件中的布局、牌堆、卡牌描述结构
 
-### 2.1 关卡内容维护
+- 数据加载与检查
+  - `Classes/tools/LevelLoader.*`
+  - `Classes/tools/LevelValidator.*`
+  - `Classes/tools/LevelSolver.*`
+  - `Classes/tools/LevelInspector.*`
+  - 负责读取 JSON、做结构校验、做可解性检查、输出巡检结果
 
-关卡内容统一在 [demo_level.json](./Resources/res/levels/demo_level.json) 中维护。适合放在 JSON 中的内容包括：
+- 运行时状态与规则
+  - `Classes/cardgame/GameState.*`
+  - 负责运行时卡牌状态、匹配规则、翻牌规则、Undo 所需状态恢复
 
-- 卡牌 id、花色、点数
-- 卡牌初始区域
-- 主牌区槽位
-- 备用牌堆和手牌区初始顺序
-- 卡牌坐标
-- 卡牌遮挡关系
+- 可回退命令
+  - `Classes/cardgame/GameCommand.*`
+  - 把一次用户操作封装成一个可执行、可回退的命令
 
-不建议把这些数据直接写回场景代码，否则布局和关卡内容会重新耦合。
+- 视图与表现
+  - `Classes/cardgame/CardView.*`
+  - `Classes/cardgame/CardAssetCatalog.h`
+  - 负责卡牌节点显示和资源路径管理
 
-### 2.2 玩法规则维护
+- 场景装配与输入
+  - `Classes/CardGameScene.*`
+  - `Classes/cardgame/GameOverlayView.*`
+  - `Classes/cardgame/LevelSessionLoader.*`
+  - 负责关卡启动、输入分发、动画编排、按钮和通关弹层
 
-玩法规则集中在 [GameState.cpp](./Classes/cardgame/GameState.cpp) 中维护，例如：
+### 2.2 职责边界
 
-- 是否允许匹配
-- 是否允许翻牌
-- 某张牌移除后是否触发翻牌
+建议长期保持下面的边界，不要混写：
 
-规则不应散落在 `CardGameScene` 中。场景只负责调用，不负责定义规则。
+- 改关卡内容：先改 JSON
+- 改规则：改 `GameState`
+- 改 Undo：改 `GameCommand + GameDelta`
+- 改卡牌显示：改 `CardView`
+- 改按钮或通关弹层：改 `GameOverlayView`
+- 改输入分发或动画编排：改 `CardGameScene`
+- 改关卡启动和巡检流程：改 `LevelSessionLoader`
 
-### 2.3 表现维护
+## 3. 运行流程
 
-界面和动画修改主要落在以下文件：
+### 3.1 启动流程
 
-- [CardGameScene.cpp](./Classes/CardGameScene.cpp)
-- [CardView.cpp](./Classes/cardgame/CardView.cpp)
-- [GameOverlayView.cpp](./Classes/cardgame/GameOverlayView.cpp)
+当前启动链路如下：
 
-这部分负责：
+1. `CardGameScene` 初始化场景。
+2. `LevelSessionLoader::load(...)` 读取目标关卡。
+3. `LevelSessionLoader` 调用 `LevelInspector`：
+   - 扫描关卡目录内的 JSON 文件
+   - 对目标关卡做加载、合法性校验和可解性检查
+4. 如果关卡文件可用：
+   - 用 `GameState::createFromLevelDefinition(...)` 构造运行时状态
+5. 如果关卡文件不可用：
+   - fallback 到 `GameState::createDemoState()`
+6. `CardGameScene` 根据状态创建 `CardView`，并按布局刷新位置。
 
-- 卡牌位置刷新
-- MoveTo 动画
-- 卡牌正反面显示
+### 3.2 交互流程
 
-其中：
+一次正常操作的链路如下：
 
-- `CardGameScene` 负责输入分发和动画编排
-- `GameOverlayView` 负责底部按钮和通关弹层
+1. 用户点击卡牌或按钮。
+2. `CardGameScene` 判断输入意图。
+3. 创建对应 `GameCommand`。
+4. `GameCommand` 调用 `GameState` 执行状态变更。
+5. `GameState` 产出一份 `GameDelta`，记录 Undo 所需数据。
+6. `CardGameScene` 把命令压入 `_undoStack`。
+7. 场景重新计算所有卡牌目标位置，并用统一刷新链路播放 `MoveTo` 动画。
 
-### 2.4 场景启动流程维护
+Undo 的链路与此相反：
 
-关卡启动流程集中在 [LevelSessionLoader.cpp](./Classes/cardgame/LevelSessionLoader.cpp)。
+1. 从 `_undoStack` 弹出最后一个命令。
+2. 调用命令的 `undo()`。
+3. `undo()` 只依赖执行阶段保存的 `GameDelta` 恢复状态。
+4. 场景再次刷新所有卡牌位置，播放回退动画。
 
-这部分负责：
+这个设计的核心点是：动画不保存“怎么退”，只保存“退回后的状态”。只要状态恢复正确，界面就能回到正确位置。
 
-- 批量关卡巡检日志
-- 指定关卡读取
-- 关卡失败时 fallback 到 demo 状态
+## 4. 关卡数据设计
 
-如果后续需要支持多关卡切换、关卡列表或编辑器预览，优先扩展这里，不要继续堆到 `CardGameScene`。
+### 4.1 当前数据来源
 
-## 3. 扩展：新增一张卡牌
+当前示例关卡文件：
 
-普通卡牌扩展不需要新增 C++ 类，直接修改 JSON 即可。
+- `Resources/res/levels/demo_level.json`
 
-### 步骤 1：新增卡牌定义
+关卡文件包含两类信息：
 
-在 [demo_level.json](./Resources/res/levels/demo_level.json) 的 `cards` 数组中增加一条记录，例如：
+- 卡牌数据
+  - `cards`
+  - `tableauSlots`
+  - `stockPile`
+  - `wastePile`
 
-```json
-{
-  "id": 13,
-  "suit": "Spades",
-  "rank": 9,
-  "zone": "Tableau",
-  "faceUp": true,
-  "tableauIndex": 8,
-  "blockers": [],
-  "children": []
-}
-```
+- 布局数据
+  - `cardSize`
+  - `stockBasePosition`
+  - `wasteBasePosition`
+  - `stockPileDepthOffset`
+  - `wastePileDepthOffset`
+  - `coveredCardOffset`
+  - `controlMenuPosition`
+  - `tableauPositions`
 
-### 步骤 2：接入初始区域
+### 4.2 为什么要数据化
 
-根据卡牌所属区域，更新对应数组：
+把关卡和布局写进 JSON，而不是继续硬编码在场景里，主要有三个收益：
 
-- 主牌区：`tableauSlots`
-- 备用牌堆：`stockPile`
-- 手牌区：`wastePile`
+- 调关卡时不需要改 C++ 逻辑
+- 关卡制作和程序开发可以并行
+- 可以在启动阶段做自动校验，提前发现无效或无解关卡
 
-如果是主牌区卡牌，`tableauIndex` 必须和槽位索引一致。
+### 4.3 如何确认关卡可消除
 
-### 步骤 3：补充布局坐标
+当前工程不是靠人工目测确认，而是走工具链：
 
-如果新增了主牌区槽位，需要同步更新 `layout.tableauPositions`，例如：
+- `LevelValidator`
+  - 检查重复 id、丢失引用、索引越界、遮挡关系错误等结构问题
 
-```json
-{ "x": 630, "y": 1140 }
-```
+- `LevelSolver`
+  - 依据当前规则搜索关卡是否能清空主牌区
 
-### 步骤 4：补充遮挡关系
+- `LevelInspector`
+  - 串联加载、校验、求解，并提供单关或目录级巡检入口
 
-如存在覆盖关系，需要配置：
+这意味着后续新增关卡时，可以先让工具判断“是否合法、是否可解”，再交给场景运行。
 
-- `blockers`
-  - 当前卡牌被哪些牌压住
-- `children`
-  - 当前卡牌移除后，哪些牌可能翻开
+## 5. 扩展方式
 
-这组数据同时影响点击、翻牌和关卡可解性。
+### 5.1 新增一张卡牌
 
-### 步骤 5：验证可解性
+普通卡牌扩展优先改 JSON，不新增 C++ 类。
 
-启动时会调用 [LevelSolver.cpp](./Classes/tools/LevelSolver.cpp) 做可解性检查。
+最小改动路径如下：
 
-如果日志输出 `clearable: false`，说明新增卡牌后当前关卡已经无解，需要回查牌序或遮挡关系。
+1. 在 `Resources/res/levels/demo_level.json` 的 `cards` 中增加卡牌定义。
+2. 根据所属区域，把卡牌 id 放入：
+   - `tableauSlots`
+   - `stockPile`
+   - `wastePile`
+3. 如果是主牌区卡牌，确认 `tableauIndex` 正确。
+4. 如果有遮挡关系，补齐：
+   - `blockers`
+   - `children`
+5. 如果新增了新的主牌区槽位，补齐 `layout.tableauPositions`。
+6. 运行程序，查看巡检日志是否出现：
+   - 校验错误
+   - `clearable: false`
 
-## 4. 扩展：新增一种可回退功能
+可以把“新增一张卡牌”理解成“补一条数据记录”，而不是“补一段业务逻辑”。
 
-当前 Undo 结构如下：
+### 5.2 新增一种可回退功能
 
-1. 一次用户操作对应一个 `GameCommand`
-2. `GameCommand` 调用 `GameState`
-3. `GameState` 执行时生成一份 `GameDelta`
-4. Undo 时基于 `GameDelta` 做反向恢复
+当前 Undo 的扩展点是明确的，按这个顺序做：
 
-新增可回退功能时，按这个结构扩展，不直接修改 Undo 按钮逻辑。
+1. 在 `Classes/cardgame/GameState.h` 的 `GameActionType` 中增加动作类型。
+2. 在 `GameDelta` 中补充这类操作回退所需的数据。
+3. 在 `Classes/cardgame/GameState.cpp` 中增加执行接口和回退接口。
+4. 在 `Classes/cardgame/GameCommand.*` 中增加对应命令类。
+5. 在 `Classes/CardGameScene.cpp` 中把输入入口接到这个新命令上。
 
-### 步骤 1：增加动作类型
+这里有一个约束建议：
 
-文件：[GameState.h](./Classes/cardgame/GameState.h)
+- 执行时，把 Undo 需要的状态一次性记全
+- Undo 时，不要依赖“重新推断当时状态”
 
-在 `GameActionType` 中增加新的动作枚举，例如：
+这样做的好处是，功能变多后，Undo 仍然稳定，不容易出现“回退一半”或“回退错对象”的问题。
 
-```cpp
-SwapWasteTopWithReserve
-```
+## 6. 维护建议
 
-### 步骤 2：补充回退数据
+### 6.1 哪些地方最值得继续优化
 
-文件：[GameState.h](./Classes/cardgame/GameState.h)
+从可维护性和可扩展性看，后续优先级较高的事项是：
 
-在 `GameDelta` 中增加这类操作回退所需的数据，例如：
+- 把更多布局常量继续收口到 JSON
+- 为多关卡建立统一目录和命名规范
+- 增加批量巡检入口，检查整包关卡
+- 让关卡日志输出更适合策划直接阅读
+- 在文档中沉淀新增关卡和新增命令的操作模板
 
-- 移动卡牌 id
-- 原始区域
-- 原始索引
-- 目标区域原始状态
-- 连带翻开的卡牌列表
+### 6.2 工程层面对中文注释的建议
 
-原则：
+这个项目可以保留“少量中文注释”，但建议控制范围：
 
-- Undo 不依赖推断
-- 执行时一次性记录完整回退信息
+- 适合写中文注释的地方
+  - 模块职责
+  - 数据边界
+  - Undo 设计约束
+  - 容易误改的业务规则
 
-### 步骤 3：增加状态执行和回退接口
+- 不建议写中文注释的地方
+  - 显而易见的赋值和流程语句
+  - 第三方库代码
+  - 会和代码本身重复的描述
 
-文件：[GameState.cpp](./Classes/cardgame/GameState.cpp)
+原则是：注释用来解释“为什么这样设计”，不是解释“这一行代码在干什么”。
 
-新增成对接口，例如：
+## 7. 面向后续需求的结论
 
-```cpp
-bool swapWasteTopWithReserve(GameDelta& outDelta);
-bool undoSwapWasteTopWithReserve(const GameDelta& delta);
-```
+当前版本已经具备继续承接需求的基础：
 
-约束建议：
+- 能继续加关卡
+- 能继续改布局
+- 能继续加新规则
+- 能继续加新 Undo 类型
+- 能在启动阶段做关卡巡检
 
-- `xxx(...)` 负责修改状态并填充 `outDelta`
-- `undoXxx(...)` 仅基于 `delta` 恢复状态
-
-### 步骤 4：增加命令类
-
-文件：
-
-- [GameCommand.h](./Classes/cardgame/GameCommand.h)
-- [GameCommand.cpp](./Classes/cardgame/GameCommand.cpp)
-
-为新操作增加一个命令类，保持与现有 `DrawStockCommand`、`MatchTableauCommand` 一致的执行模式。
-
-### 步骤 5：在场景中接入
-
-文件：[CardGameScene.cpp](./Classes/CardGameScene.cpp)
-
-在合适的输入入口执行：
-
-```cpp
-executeCommand(cardgame::GameCommandPtr(new YourNewCommand(...)));
-```
-
-接入后，该功能会自动进入现有 `_undoStack` 流程。
-
-## 5. 后续维护建议
-
-建议继续保持以下边界：
-
-- 新关卡、新坐标、新卡牌：优先放 JSON
-- 新规则：放 `GameState`
-- 新 Undo 类型：走 `GameCommand + GameDelta`
-- 新显示效果：放 `CardView` 或 `CardGameScene`
-
-按这个边界维护，后续需求增加时改动范围会更可控。
-
-## 6. 建议的后续增强项
-
-后续如果继续扩展，优先级较高的事项有：
-
-- 将盖牌偏移配置移入 JSON
-- 将牌堆叠放偏移移入 JSON
-- 增加关卡校验工具，检查非法引用和重复 id
-- 支持批量校验所有关卡是否可解
-
-这些改动能显著降低后续关卡制作和维护成本。
+如果后续继续迭代，建议继续坚持“数据驱动 + 规则集中 + 命令回退 + 视图解耦”这条线，不要把新增逻辑重新堆回 `CardGameScene`。
