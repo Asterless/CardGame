@@ -167,4 +167,3 @@ proj.win32\Debug.win32\card.exe
 ## 相关文档
 
 - [程序设计说明](./PROGRAM_DESIGN.md)
-- [项目面试说明](./INTERVIEW_PROJECT_BRIEF.md)
