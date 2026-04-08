@@ -1,0 +1,39 @@
+{
+  "levelId": "demo-level-01",
+  "layout": {
+    "cardSize": { "width": 190, "height": 266 },
+    "stockBasePosition": { "x": 290, "y": 206 },
+    "wasteBasePosition": { "x": 790, "y": 206 },
+    "stockPileDepthOffset": { "x": -8, "y": -10 },
+    "wastePileDepthOffset": { "x": 0, "y": 0 },
+    "coveredCardOffset": { "x": -8, "y": -10 },
+    "controlMenuPosition": { "x": 870, "y": 468 },
+    "tableauPositions": [
+      { "x": 270, "y": 1480 },
+      { "x": 450, "y": 1480 },
+      { "x": 630, "y": 1480 },
+      { "x": 810, "y": 1480 },
+      { "x": 360, "y": 1140 },
+      { "x": 540, "y": 1140 },
+      { "x": 270, "y": 1320 },
+      { "x": 450, "y": 1320 }
+    ]
+  },
+  "tableauSlots": [1, 2, 3, 4, 5, 6, 7, 8],
+  "stockPile": [9, 10, 11],
+  "wastePile": [12],
+  "cards": [
+    { "id": 1, "suit": "Diamonds", "rank": 3, "zone": "Tableau", "faceUp": true, "tableauIndex": 0, "blockers": [], "children": [7] },
+    { "id": 2, "suit": "Spades", "rank": 6, "zone": "Tableau", "faceUp": true, "tableauIndex": 1, "blockers": [], "children": [8] },
+    { "id": 3, "suit": "Hearts", "rank": 8, "zone": "Tableau", "faceUp": true, "tableauIndex": 2, "blockers": [], "children": [] },
+    { "id": 4, "suit": "Clubs", "rank": 10, "zone": "Tableau", "faceUp": true, "tableauIndex": 3, "blockers": [], "children": [] },
+    { "id": 5, "suit": "Spades", "rank": 5, "zone": "Tableau", "faceUp": true, "tableauIndex": 4, "blockers": [], "children": [] },
+    { "id": 6, "suit": "Diamonds", "rank": 11, "zone": "Tableau", "faceUp": true, "tableauIndex": 5, "blockers": [], "children": [] },
+    { "id": 7, "suit": "Hearts", "rank": 4, "zone": "Tableau", "faceUp": false, "tableauIndex": 6, "blockers": [1], "children": [] },
+    { "id": 8, "suit": "Clubs", "rank": 7, "zone": "Tableau", "faceUp": false, "tableauIndex": 7, "blockers": [2], "children": [] },
+    { "id": 9, "suit": "Diamonds", "rank": 9, "zone": "Stock", "faceUp": false, "tableauIndex": -1, "blockers": [], "children": [] },
+    { "id": 10, "suit": "Spades", "rank": 2, "zone": "Stock", "faceUp": false, "tableauIndex": -1, "blockers": [], "children": [] },
+    { "id": 11, "suit": "Hearts", "rank": 1, "zone": "Stock", "faceUp": true, "tableauIndex": -1, "blockers": [], "children": [] },
+    { "id": 12, "suit": "Clubs", "rank": 4, "zone": "Waste", "faceUp": true, "tableauIndex": -1, "blockers": [], "children": [] }
+  ]
+}

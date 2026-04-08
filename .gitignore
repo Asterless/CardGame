@@ -1,0 +1,32 @@
+# Visual Studio / MSBuild
+.vs/
+*.VC.db
+*.VC.opendb
+*.sdf
+*.suo
+*.user
+*.userosscache
+*.opensdf
+
+# Build outputs
+build/
+bin/
+lib/
+obj/
+Debug/
+Release/
+Debug.win32/
+Release.win32/
+x64/
+
+# Cocos project outputs
+proj.win32/Debug.win32/
+proj.win32/Release.win32/
+proj.android/.gradle/
+proj.android/build/
+proj.android/app/build/
+
+# Temporary files
+*.log
+*.tmp
+*.cache
