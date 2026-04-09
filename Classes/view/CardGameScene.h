@@ -1,16 +1,20 @@
 #ifndef CARD_GAME_SCENE_H
 #define CARD_GAME_SCENE_H
 
+#include "cocos2d.h"
 #include "data/LevelDefinition.h"
 #include "logic/GameCommand.h"
-#include "logic/LevelSessionLoader.h"
 #include "support/ObserverPtr.h"
-#include "view/CardView.h"
-#include "view/GameOverlayView.h"
 
 #include <functional>
 #include <unordered_map>
 #include <vector>
+
+namespace cardgame
+{
+    class CardView;
+    class GameOverlayView;
+}
 
 class CardGameScene : public cocos2d::Scene
 {

@@ -1,7 +1,12 @@
 #include "CardGameScene.h"
 
+#include "logic/LevelSessionLoader.h"
+#include "view/CardView.h"
+#include "view/GameOverlayView.h"
+
 #include <algorithm>
 #include <limits>
+#include <sstream>
 
 USING_NS_CC;
 

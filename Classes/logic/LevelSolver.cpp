@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <set>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 namespace cardgame
