@@ -7,23 +7,102 @@
   },
   "configurePresets": [
     {
+      "name": "vs2022-base",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "x64-debug",
+      "displayName": "x64 Debug",
+      "inherits": "vs2022-base",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/x64-debug",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug"
+      }
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release",
+      "inherits": "vs2022-base",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/x64-release",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Release"
+      }
+    },
+    {
       "name": "win32-debug",
       "displayName": "Win32 Debug",
-      "generator": "Visual Studio 17 2022",
+      "inherits": "vs2022-base",
       "architecture": "Win32",
       "binaryDir": "${sourceDir}/build/win32-debug",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_CONFIGURATION_TYPES": "Debug"
+      }
+    },
+    {
+      "name": "win32-release",
+      "displayName": "Win32 Release",
+      "inherits": "vs2022-base",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/build/win32-release",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Release"
       }
     }
   ],
   "buildPresets": [
     {
+      "name": "x64-debug",
+      "displayName": "Build x64 Debug",
+      "configurePreset": "x64-debug",
+      "configuration": "Debug",
+      "nativeToolOptions": [
+        "/m:1",
+        "/p:UseMultiToolTask=false",
+        "/p:MultiProcessorCompilation=false",
+        "/p:CL_MPCount=1"
+      ]
+    },
+    {
+      "name": "x64-release",
+      "displayName": "Build x64 Release",
+      "configurePreset": "x64-release",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "/m:1",
+        "/p:UseMultiToolTask=false",
+        "/p:MultiProcessorCompilation=false",
+        "/p:CL_MPCount=1"
+      ]
+    },
+    {
       "name": "win32-debug",
       "displayName": "Build Win32 Debug",
       "configurePreset": "win32-debug",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "nativeToolOptions": [
+        "/m:1",
+        "/p:UseMultiToolTask=false",
+        "/p:MultiProcessorCompilation=false",
+        "/p:CL_MPCount=1"
+      ]
+    },
+    {
+      "name": "win32-release",
+      "displayName": "Build Win32 Release",
+      "configurePreset": "win32-release",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "/m:1",
+        "/p:UseMultiToolTask=false",
+        "/p:MultiProcessorCompilation=false",
+        "/p:CL_MPCount=1"
+      ]
     }
   ]
 }

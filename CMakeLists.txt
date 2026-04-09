@@ -25,14 +25,28 @@
 
 cmake_minimum_required(VERSION 3.5...3.28)
 
-set(APP_NAME TemplateCpp)
+set(APP_NAME card)
 
-project(${APP_NAME})
+project(${APP_NAME} LANGUAGES C CXX)
+
+# cocos2d-x 3.17 still relies on C++14-era standard library facilities on MSVC.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(MSVC)
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+    add_compile_options(/FS)
+endif()
 
 set(COCOS2DX_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cocos2d)
 set(CMAKE_MODULE_PATH ${COCOS2DX_ROOT_PATH}/cmake/Modules/)
 
 include(CocosBuildSet)
+if(MSVC)
+    string(REPLACE "/MP" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    string(REPLACE "/MP" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
 if(NOT USE_COCOS_PREBUILT)
     add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos ${ENGINE_BINARY_PATH}/cocos/core)
 endif()
@@ -48,10 +62,6 @@ if(APPLE OR WINDOWS)
     cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
 endif()
 
-include_directories(
-        Classes
-        ${COCOS2DX_ROOT_PATH}/cocos/audio/include/
-)
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      Classes/app/AppDelegate.cpp
@@ -87,8 +97,7 @@ list(APPEND GAME_HEADER
      )
 
 if(ANDROID)
-    # change APP_NAME to the share library name for Android, it's value depend on AndroidManifest.xml
-    set(APP_NAME MyGame)
+    # On Android the shared library name must stay aligned with AndroidManifest.xml.
     list(APPEND GAME_SOURCE
          proj.android/app/jni/hellocpp/main.cpp
          )
@@ -148,6 +157,15 @@ cocos_build_app(${APP_NAME}
                 DEPEND_COMMON_LIBS "cocos2d"
                 DEPEND_ANDROID_LIBS "cocos2d_android"
                 )
+
+target_compile_options(${APP_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
+)
+
+target_include_directories(${APP_NAME} PRIVATE
+    Classes
+    ${COCOS2DX_ROOT_PATH}/cocos/audio/include
+)
 
 if(APPLE)
     set_target_properties(${APP_NAME} PROPERTIES RESOURCE "${APP_UI_RES}")
