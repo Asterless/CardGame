@@ -1,7 +1,7 @@
 #ifndef __CARDGAME_GAME_COMMAND_H__
 #define __CARDGAME_GAME_COMMAND_H__
 
-#include "GameState.h"
+#include "logic/GameState.h"
 
 #include <memory>
 

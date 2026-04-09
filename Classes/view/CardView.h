@@ -1,7 +1,7 @@
 #ifndef __CARDGAME_CARD_VIEW_H__
 #define __CARDGAME_CARD_VIEW_H__
 
-#include "GameState.h"
+#include "data/CardData.h"
 
 #include "cocos2d.h"
 

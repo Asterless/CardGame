@@ -1,7 +1,7 @@
 #ifndef __CARDGAME_LEVEL_SOLVER_H__
 #define __CARDGAME_LEVEL_SOLVER_H__
 
-#include "LevelDefinition.h"
+#include "data/LevelDefinition.h"
 
 namespace cardgame
 {

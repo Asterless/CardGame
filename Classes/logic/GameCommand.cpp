@@ -1,4 +1,4 @@
-#include "cardgame/GameCommand.h"
+#include "logic/GameCommand.h"
 
 namespace cardgame
 {

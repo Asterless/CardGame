@@ -151,34 +151,35 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Classes\AppDelegate.cpp" />
-    <ClCompile Include="..\Classes\CardGameScene.cpp" />
-    <ClCompile Include="..\Classes\cardgame\CardView.cpp" />
-    <ClCompile Include="..\Classes\cardgame\GameOverlayView.cpp" />
-    <ClCompile Include="..\Classes\cardgame\GameCommand.cpp" />
-    <ClCompile Include="..\Classes\cardgame\GameState.cpp" />
-    <ClCompile Include="..\Classes\cardgame\LevelSessionLoader.cpp" />
-    <ClCompile Include="..\Classes\tools\LevelLoader.cpp" />
-    <ClCompile Include="..\Classes\tools\LevelInspector.cpp" />
-    <ClCompile Include="..\Classes\tools\LevelSolver.cpp" />
-    <ClCompile Include="..\Classes\tools\LevelValidator.cpp" />
+    <ClCompile Include="..\Classes\app\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\data\LevelLoader.cpp" />
+    <ClCompile Include="..\Classes\logic\GameCommand.cpp" />
+    <ClCompile Include="..\Classes\logic\GameState.cpp" />
+    <ClCompile Include="..\Classes\logic\LevelInspector.cpp" />
+    <ClCompile Include="..\Classes\logic\LevelSessionLoader.cpp" />
+    <ClCompile Include="..\Classes\logic\LevelSolver.cpp" />
+    <ClCompile Include="..\Classes\logic\LevelValidator.cpp" />
+    <ClCompile Include="..\Classes\view\CardGameScene.cpp" />
+    <ClCompile Include="..\Classes\view\CardView.cpp" />
+    <ClCompile Include="..\Classes\view\GameOverlayView.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Classes\AppDelegate.h" />
-    <ClInclude Include="..\Classes\CardGameScene.h" />
-    <ClInclude Include="..\Classes\cardgame\CardAssetCatalog.h" />
-    <ClInclude Include="..\Classes\cardgame\CardTypes.h" />
-    <ClInclude Include="..\Classes\cardgame\CardView.h" />
-    <ClInclude Include="..\Classes\cardgame\GameOverlayView.h" />
-    <ClInclude Include="..\Classes\cardgame\GameCommand.h" />
-    <ClInclude Include="..\Classes\cardgame\GameState.h" />
-    <ClInclude Include="..\Classes\cardgame\LevelSessionLoader.h" />
-    <ClInclude Include="..\Classes\tools\LevelDefinition.h" />
-    <ClInclude Include="..\Classes\tools\LevelLoader.h" />
-    <ClInclude Include="..\Classes\tools\LevelInspector.h" />
-    <ClInclude Include="..\Classes\tools\LevelSolver.h" />
-    <ClInclude Include="..\Classes\tools\LevelValidator.h" />
+    <ClInclude Include="..\Classes\app\AppDelegate.h" />
+    <ClInclude Include="..\Classes\data\CardData.h" />
+    <ClInclude Include="..\Classes\data\CardTypes.h" />
+    <ClInclude Include="..\Classes\data\LevelDefinition.h" />
+    <ClInclude Include="..\Classes\data\LevelLoader.h" />
+    <ClInclude Include="..\Classes\logic\GameCommand.h" />
+    <ClInclude Include="..\Classes\logic\GameState.h" />
+    <ClInclude Include="..\Classes\logic\LevelInspector.h" />
+    <ClInclude Include="..\Classes\logic\LevelSessionLoader.h" />
+    <ClInclude Include="..\Classes\logic\LevelSolver.h" />
+    <ClInclude Include="..\Classes\logic\LevelValidator.h" />
+    <ClInclude Include="..\Classes\view\CardAssetCatalog.h" />
+    <ClInclude Include="..\Classes\view\CardGameScene.h" />
+    <ClInclude Include="..\Classes\view\CardView.h" />
+    <ClInclude Include="..\Classes\view\GameOverlayView.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>

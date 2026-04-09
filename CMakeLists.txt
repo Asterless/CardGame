@@ -54,20 +54,34 @@ include_directories(
 )
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
-     Classes/AppDelegate.cpp
-     Classes/CardGameScene.cpp
-     Classes/cardgame/CardView.cpp
-     Classes/cardgame/GameCommand.cpp
-     Classes/cardgame/GameState.cpp
+     Classes/app/AppDelegate.cpp
+     Classes/view/CardGameScene.cpp
+     Classes/view/CardView.cpp
+     Classes/view/GameOverlayView.cpp
+     Classes/logic/GameCommand.cpp
+     Classes/logic/GameState.cpp
+     Classes/logic/LevelSessionLoader.cpp
+     Classes/logic/LevelInspector.cpp
+     Classes/logic/LevelSolver.cpp
+     Classes/logic/LevelValidator.cpp
+     Classes/data/LevelLoader.cpp
      )
 list(APPEND GAME_HEADER
-     Classes/AppDelegate.h
-     Classes/CardGameScene.h
-     Classes/cardgame/CardTypes.h
-     Classes/cardgame/CardAssetCatalog.h
-     Classes/cardgame/CardView.h
-     Classes/cardgame/GameCommand.h
-     Classes/cardgame/GameState.h
+     Classes/app/AppDelegate.h
+     Classes/view/CardGameScene.h
+     Classes/view/CardAssetCatalog.h
+     Classes/view/CardView.h
+     Classes/view/GameOverlayView.h
+     Classes/logic/GameCommand.h
+     Classes/logic/GameState.h
+     Classes/logic/LevelSessionLoader.h
+     Classes/logic/LevelInspector.h
+     Classes/logic/LevelSolver.h
+     Classes/logic/LevelValidator.h
+     Classes/data/CardTypes.h
+     Classes/data/CardData.h
+     Classes/data/LevelDefinition.h
+     Classes/data/LevelLoader.h
      )
 
 if(ANDROID)

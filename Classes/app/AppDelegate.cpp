@@ -22,8 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "AppDelegate.h"
-#include "CardGameScene.h"
+#include "app/AppDelegate.h"
+#include "view/CardGameScene.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1

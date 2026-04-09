@@ -1,5 +1,5 @@
-#include "cardgame/CardView.h"
-#include "cardgame/CardAssetCatalog.h"
+#include "view/CardAssetCatalog.h"
+#include "view/CardView.h"
 
 #include <algorithm>
 #include <new>

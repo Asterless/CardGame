@@ -1,6 +1,6 @@
-#include "tools/LevelSolver.h"
+#include "logic/LevelSolver.h"
 
-#include "cardgame/GameState.h"
+#include "logic/GameState.h"
 
 #include <algorithm>
 #include <set>

@@ -1,7 +1,7 @@
 #ifndef __CARDGAME_LEVEL_INSPECTOR_H__
 #define __CARDGAME_LEVEL_INSPECTOR_H__
 
-#include "LevelDefinition.h"
+#include "data/LevelDefinition.h"
 
 #include <string>
 #include <vector>

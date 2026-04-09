@@ -1,11 +1,10 @@
 #ifndef __CARDGAME_GAME_STATE_H__
 #define __CARDGAME_GAME_STATE_H__
 
-#include "tools/LevelDefinition.h"
-#include "CardTypes.h"
+#include "data/CardData.h"
+#include "data/LevelDefinition.h"
 
 #include <unordered_map>
-#include <vector>
 
 namespace cardgame
 {
@@ -25,20 +24,6 @@ struct GameDelta
     int sourceIndex = -1;
     // 因本次操作被连带翻开的牌。Undo 时必须恢复这些牌的朝向。
     std::vector<int> revealedCardIds;
-};
-
-struct CardData
-{
-    int id = -1;
-    Suit suit = Suit::Clubs;
-    int rank = 1;
-    CardZone zone = CardZone::Tableau;
-    bool faceUp = false;
-    int tableauIndex = -1;
-    // blockers 表示压住当前牌的牌。只要这些牌还在主牌区，当前牌就不可操作。
-    std::vector<int> blockers;
-    // children 表示当前牌移除后，可能因此翻开的下层牌。
-    std::vector<int> children;
 };
 
 class GameState

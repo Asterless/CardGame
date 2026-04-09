@@ -1,4 +1,4 @@
-#include "tools/LevelValidator.h"
+#include "logic/LevelValidator.h"
 
 #include <algorithm>
 #include <map>

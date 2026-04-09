@@ -10,90 +10,105 @@
     <Filter Include="src">
       <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\app">
+      <UniqueIdentifier>{c19a4dc4-6b67-4e28-b87c-5c41d70eb316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\data">
+      <UniqueIdentifier>{08d2fe70-cfdb-42bf-b456-f0fa7526534a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\logic">
+      <UniqueIdentifier>{f5f90b1a-8f07-45f0-bfe8-a5f6669352f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\view">
+      <UniqueIdentifier>{40d6f1bd-42fd-4b2d-bec1-f3d7731d0a0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>win32</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\AppDelegate.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\app\AppDelegate.cpp">
+      <Filter>src\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\CardGameScene.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\data\LevelLoader.cpp">
+      <Filter>src\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\cardgame\CardView.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\GameCommand.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\cardgame\GameOverlayView.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\GameState.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\cardgame\GameCommand.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\LevelInspector.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\cardgame\GameState.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\LevelSessionLoader.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\cardgame\LevelSessionLoader.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\LevelSolver.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\tools\LevelLoader.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\logic\LevelValidator.cpp">
+      <Filter>src\logic</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\tools\LevelInspector.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\view\CardGameScene.cpp">
+      <Filter>src\view</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\tools\LevelSolver.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\view\CardView.cpp">
+      <Filter>src\view</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\tools\LevelValidator.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\Classes\view\GameOverlayView.cpp">
+      <Filter>src\view</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\AppDelegate.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\app\AppDelegate.h">
+      <Filter>src\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\CardGameScene.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\data\CardData.h">
+      <Filter>src\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\CardAssetCatalog.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\data\CardTypes.h">
+      <Filter>src\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\CardTypes.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\data\LevelDefinition.h">
+      <Filter>src\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\CardView.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\data\LevelLoader.h">
+      <Filter>src\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\GameOverlayView.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\GameCommand.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\GameCommand.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\GameState.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\GameState.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\LevelInspector.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\cardgame\LevelSessionLoader.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\LevelSessionLoader.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\tools\LevelDefinition.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\LevelSolver.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\tools\LevelLoader.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\logic\LevelValidator.h">
+      <Filter>src\logic</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\tools\LevelInspector.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\view\CardAssetCatalog.h">
+      <Filter>src\view</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\tools\LevelSolver.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\view\CardGameScene.h">
+      <Filter>src\view</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\tools\LevelValidator.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\Classes\view\CardView.h">
+      <Filter>src\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\view\GameOverlayView.h">
+      <Filter>src\view</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

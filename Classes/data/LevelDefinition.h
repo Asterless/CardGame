@@ -1,7 +1,7 @@
 #ifndef __CARDGAME_LEVEL_DEFINITION_H__
 #define __CARDGAME_LEVEL_DEFINITION_H__
 
-#include "cardgame/CardTypes.h"
+#include "data/CardTypes.h"
 
 #include <string>
 #include <vector>

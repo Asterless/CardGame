@@ -1,6 +1,6 @@
-#include "cardgame/LevelSessionLoader.h"
+#include "logic/LevelSessionLoader.h"
 
-#include "tools/LevelInspector.h"
+#include "logic/LevelInspector.h"
 
 #include <sstream>
 

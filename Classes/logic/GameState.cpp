@@ -1,4 +1,4 @@
-#include "cardgame/GameState.h"
+#include "logic/GameState.h"
 
 #include <algorithm>
 #include <cmath>

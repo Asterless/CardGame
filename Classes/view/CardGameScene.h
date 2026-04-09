@@ -1,11 +1,11 @@
 #ifndef __CARD_GAME_SCENE_H__
 #define __CARD_GAME_SCENE_H__
 
-#include "cardgame/CardView.h"
-#include "cardgame/GameOverlayView.h"
-#include "cardgame/GameCommand.h"
-#include "cardgame/LevelSessionLoader.h"
-#include "tools/LevelDefinition.h"
+#include "data/LevelDefinition.h"
+#include "logic/GameCommand.h"
+#include "logic/LevelSessionLoader.h"
+#include "view/CardView.h"
+#include "view/GameOverlayView.h"
 
 #include <functional>
 #include <unordered_map>

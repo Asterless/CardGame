@@ -1,8 +1,8 @@
-#include "tools/LevelInspector.h"
+#include "logic/LevelInspector.h"
 
-#include "tools/LevelLoader.h"
-#include "tools/LevelSolver.h"
-#include "tools/LevelValidator.h"
+#include "data/LevelLoader.h"
+#include "logic/LevelSolver.h"
+#include "logic/LevelValidator.h"
 
 #include "cocos2d.h"
 

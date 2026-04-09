@@ -39,41 +39,44 @@ proj.win32\Debug.win32\card.exe
 
 ## 目录说明
 
-- `Classes/CardGameScene.*`
+- `Classes/view/CardGameScene.*`
   - 场景装配、输入分发、卡牌刷新、动画编排
 
-- `Classes/cardgame/GameState.*`
+- `Classes/logic/GameState.*`
   - 核心玩法规则、运行时状态、翻牌逻辑、Undo 状态恢复
 
-- `Classes/cardgame/GameCommand.*`
+- `Classes/logic/GameCommand.*`
   - 命令模式封装，每个用户操作对应一个可回退命令
 
-- `Classes/cardgame/CardView.*`
+- `Classes/view/CardView.*`
   - 单张卡牌显示逻辑
 
-- `Classes/cardgame/CardAssetCatalog.h`
+- `Classes/view/CardAssetCatalog.h`
   - 卡牌资源路径集中管理
 
-- `Classes/cardgame/GameOverlayView.*`
+- `Classes/view/GameOverlayView.*`
   - 底部按钮和结束弹层
 
-- `Classes/cardgame/LevelSessionLoader.*`
+- `Classes/logic/LevelSessionLoader.*`
   - 关卡启动入口，串联巡检、加载和 fallback
 
-- `Classes/tools/LevelDefinition.h`
+- `Classes/data/LevelDefinition.h`
   - 关卡数据结构定义
 
-- `Classes/tools/LevelLoader.*`
+- `Classes/data/LevelLoader.*`
   - 关卡 JSON 读取
 
-- `Classes/tools/LevelValidator.*`
+- `Classes/logic/LevelValidator.*`
   - 关卡合法性校验
 
-- `Classes/tools/LevelSolver.*`
+- `Classes/logic/LevelSolver.*`
   - 关卡可解性检查
 
-- `Classes/tools/LevelInspector.*`
+- `Classes/logic/LevelInspector.*`
   - 单关 / 目录级巡检入口
+
+- `Classes/app/AppDelegate.*`
+  - 应用启动入口
 
 - `Resources/res/levels/demo_level.json`
   - 当前示例关卡

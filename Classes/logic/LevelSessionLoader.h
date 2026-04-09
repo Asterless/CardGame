@@ -1,8 +1,8 @@
 #ifndef __CARDGAME_LEVEL_SESSION_LOADER_H__
 #define __CARDGAME_LEVEL_SESSION_LOADER_H__
 
-#include "GameState.h"
-#include "tools/LevelDefinition.h"
+#include "data/LevelDefinition.h"
+#include "logic/GameState.h"
 
 #include <string>
 #include <vector>

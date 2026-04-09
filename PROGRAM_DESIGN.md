@@ -22,34 +22,38 @@
 当前工程按“数据、规则、表现、装配”分层：
 
 - 数据定义
-  - `Classes/tools/LevelDefinition.h`
+  - `Classes/data/LevelDefinition.h`
   - 定义关卡文件中的布局、牌堆、卡牌描述结构
 
 - 数据加载与检查
-  - `Classes/tools/LevelLoader.*`
-  - `Classes/tools/LevelValidator.*`
-  - `Classes/tools/LevelSolver.*`
-  - `Classes/tools/LevelInspector.*`
+  - `Classes/data/LevelLoader.*`
+  - `Classes/logic/LevelValidator.*`
+  - `Classes/logic/LevelSolver.*`
+  - `Classes/logic/LevelInspector.*`
   - 负责读取 JSON、做结构校验、做可解性检查、输出巡检结果
 
 - 运行时状态与规则
-  - `Classes/cardgame/GameState.*`
+  - `Classes/logic/GameState.*`
   - 负责运行时卡牌状态、匹配规则、翻牌规则、Undo 所需状态恢复
 
 - 可回退命令
-  - `Classes/cardgame/GameCommand.*`
+  - `Classes/logic/GameCommand.*`
   - 把一次用户操作封装成一个可执行、可回退的命令
 
 - 视图与表现
-  - `Classes/cardgame/CardView.*`
-  - `Classes/cardgame/CardAssetCatalog.h`
+  - `Classes/view/CardView.*`
+  - `Classes/view/CardAssetCatalog.h`
   - 负责卡牌节点显示和资源路径管理
 
 - 场景装配与输入
-  - `Classes/CardGameScene.*`
-  - `Classes/cardgame/GameOverlayView.*`
-  - `Classes/cardgame/LevelSessionLoader.*`
+  - `Classes/view/CardGameScene.*`
+  - `Classes/view/GameOverlayView.*`
+  - `Classes/logic/LevelSessionLoader.*`
   - 负责关卡启动、输入分发、动画编排、按钮和通关弹层
+
+- 启动入口
+  - `Classes/app/AppDelegate.*`
+  - 负责应用启动和场景挂接，不承载业务逻辑
 
 ### 2.2 职责边界
 
@@ -178,11 +182,11 @@ Undo 的链路与此相反：
 
 当前 Undo 的扩展点是明确的，按这个顺序做：
 
-1. 在 `Classes/cardgame/GameState.h` 的 `GameActionType` 中增加动作类型。
+1. 在 `Classes/logic/GameState.h` 的 `GameActionType` 中增加动作类型。
 2. 在 `GameDelta` 中补充这类操作回退所需的数据。
-3. 在 `Classes/cardgame/GameState.cpp` 中增加执行接口和回退接口。
-4. 在 `Classes/cardgame/GameCommand.*` 中增加对应命令类。
-5. 在 `Classes/CardGameScene.cpp` 中把输入入口接到这个新命令上。
+3. 在 `Classes/logic/GameState.cpp` 中增加执行接口和回退接口。
+4. 在 `Classes/logic/GameCommand.*` 中增加对应命令类。
+5. 在 `Classes/view/CardGameScene.cpp` 中把输入入口接到这个新命令上。
 
 这里有一个约束建议：
 
