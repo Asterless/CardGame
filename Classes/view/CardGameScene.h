@@ -14,7 +14,7 @@
 class CardGameScene : public cocos2d::Scene
 {
 public:
-    static cocos2d::Scene* createScene();
+    static cocos2d::Scene *createScene();
 
     bool init() override;
 
@@ -38,23 +38,23 @@ private:
     void onResetRequested();
     void onReplayRequested();
 
-    void applyLevelLayout(const cardgame::LevelDefinition& definition);
+    void applyLevelLayout(const cardgame::LevelDefinition &definition);
     void applyDefaultLayout();
     void updateCompletionOverlay();
-    bool tryHandleCardTap(const cocos2d::Vec2& worldPoint);
-    void executeCommand(const cardgame::GameCommandPtr& command);
+    bool tryHandleCardTap(const cocos2d::Vec2 &worldPoint);
+    void executeCommand(const cardgame::GameCommandPtr &command);
     // 每次刷新都从当前状态重新计算目标位置，前进动画和 Undo 动画共用同一条刷新链路。
-    void refreshAllViews(bool animated, const std::function<void()>& completion = std::function<void()>());
-    cocos2d::Vec2 computeTableauPosition(const cardgame::CardData& card) const;
-    CardPlacement computePlacement(const cardgame::CardData& card) const;
-    void updateHudText(const std::string& message = "");
+    void refreshAllViews(bool animated, const std::function<void()> &completion = std::function<void()>());
+    cocos2d::Vec2 computeTableauPosition(const cardgame::CardData &card) const;
+    CardPlacement computePlacement(const cardgame::CardData &card) const;
+    void updateHudText(const std::string &message = "");
 
 private:
     cardgame::GameState _state;
     cardgame::LevelDefinition _loadedLevelDefinition;
-    cocos2d::Node* _cardLayer = nullptr;
-    cardgame::GameOverlayView* _overlayView = nullptr;
-    std::unordered_map<int, cardgame::CardView*> _cardViews;
+    cocos2d::Node *_cardLayer = nullptr;
+    cardgame::GameOverlayView *_overlayView = nullptr;
+    std::unordered_map<int, cardgame::CardView *> _cardViews;
     std::vector<cardgame::GameCommandPtr> _undoStack;
     std::vector<cocos2d::Vec2> _tableauPositions;
     cocos2d::Vec2 _stockBasePosition;

@@ -5,11 +5,11 @@
 
 namespace cardgame
 {
-class LevelSolver
-{
-public:
-    static bool canClearTableau(const LevelDefinition& definition);
-};
+    class LevelSolver
+    {
+    public:
+        static bool canClearTableau(const LevelDefinition &definition);
+    };
 }
 
 #endif

@@ -8,11 +8,11 @@
 
 namespace cardgame
 {
-class LevelValidator
-{
-public:
-    static bool validate(const LevelDefinition& definition, std::vector<std::string>& outErrors);
-};
+    class LevelValidator
+    {
+    public:
+        static bool validate(const LevelDefinition &definition, std::vector<std::string> &outErrors);
+    };
 }
 
 #endif

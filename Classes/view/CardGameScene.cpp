@@ -7,102 +7,102 @@ USING_NS_CC;
 
 namespace
 {
-const float kHeaderHeight = 230.0f;
-const float kBottomAreaHeight = 600.0f;
-const float kMoveDuration = 0.22f;
+    const float kHeaderHeight = 230.0f;
+    const float kBottomAreaHeight = 600.0f;
+    const float kMoveDuration = 0.22f;
 
-Vec2 computeCenteredPilePosition(const Vec2& pileBasePosition, const Size& cardSize, std::size_t pileSize, float depth, float depthXOffset, float depthYOffset)
-{
-    const float centerOffsetX = static_cast<float>(pileSize - 1) * depthXOffset * 0.5f;
-    const float centerOffsetY = static_cast<float>(pileSize - 1) * depthYOffset * 0.5f;
-    const Vec2 pileCenter = pileBasePosition + Vec2(cardSize.width * 0.5f, cardSize.height * 0.5f);
-    return pileCenter + Vec2(depth * depthXOffset - centerOffsetX,
-        depth * depthYOffset - centerOffsetY);
-}
-
-std::string joinMessages(const std::vector<std::string>& messages)
-{
-    std::ostringstream stream;
-    for (std::size_t i = 0; i < messages.size(); ++i)
+    Vec2 computeCenteredPilePosition(const Vec2 &pileBasePosition, const Size &cardSize, std::size_t pileSize, float depth, float depthXOffset, float depthYOffset)
     {
-        if (i > 0)
+        const float centerOffsetX = static_cast<float>(pileSize - 1) * depthXOffset * 0.5f;
+        const float centerOffsetY = static_cast<float>(pileSize - 1) * depthYOffset * 0.5f;
+        const Vec2 pileCenter = pileBasePosition + Vec2(cardSize.width * 0.5f, cardSize.height * 0.5f);
+        return pileCenter + Vec2(depth * depthXOffset - centerOffsetX,
+                                 depth * depthYOffset - centerOffsetY);
+    }
+
+    std::string joinMessages(const std::vector<std::string> &messages)
+    {
+        std::ostringstream stream;
+        for (std::size_t i = 0; i < messages.size(); ++i)
         {
-            stream << " | ";
+            if (i > 0)
+            {
+                stream << " | ";
+            }
+            stream << messages[i];
         }
-        stream << messages[i];
+
+        return stream.str();
     }
 
-    return stream.str();
-}
-
-Node* createPanel(const Size& size, const Vec2& center, const Color4F& fillColor, const std::string& title)
-{
-    Node* panel = Node::create();
-    panel->setPosition(center);
-
-    DrawNode* background = DrawNode::create();
-    background->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), fillColor);
-    background->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.34f, 0.38f, 0.44f, 0.80f));
-    panel->addChild(background);
-
-    if (!title.empty())
+    Node *createPanel(const Size &size, const Vec2 &center, const Color4F &fillColor, const std::string &title)
     {
-        DrawNode* badge = DrawNode::create();
-        const Vec2 badgeOrigin(-size.width * 0.5f + 34.0f, size.height * 0.5f - 76.0f);
-        badge->drawSolidRect(badgeOrigin, badgeOrigin + Vec2(212.0f, 52.0f), Color4F(1.0f, 1.0f, 1.0f, 0.40f));
-        badge->drawRect(badgeOrigin, badgeOrigin + Vec2(212.0f, 52.0f), Color4F(0.34f, 0.38f, 0.44f, 0.45f));
-        panel->addChild(badge, 1);
+        Node *panel = Node::create();
+        panel->setPosition(center);
 
-        Label* label = Label::createWithTTF(title, "fonts/arial.ttf", 26);
-        label->setAnchorPoint(Vec2(0.0f, 0.5f));
-        label->setColor(Color3B(48, 56, 66));
-        label->setPosition(Vec2(-size.width * 0.5f + 52.0f, size.height * 0.5f - 50.0f));
-        panel->addChild(label, 2);
+        DrawNode *background = DrawNode::create();
+        background->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), fillColor);
+        background->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.34f, 0.38f, 0.44f, 0.80f));
+        panel->addChild(background);
+
+        if (!title.empty())
+        {
+            DrawNode *badge = DrawNode::create();
+            const Vec2 badgeOrigin(-size.width * 0.5f + 34.0f, size.height * 0.5f - 76.0f);
+            badge->drawSolidRect(badgeOrigin, badgeOrigin + Vec2(212.0f, 52.0f), Color4F(1.0f, 1.0f, 1.0f, 0.40f));
+            badge->drawRect(badgeOrigin, badgeOrigin + Vec2(212.0f, 52.0f), Color4F(0.34f, 0.38f, 0.44f, 0.45f));
+            panel->addChild(badge, 1);
+
+            Label *label = Label::createWithTTF(title, "fonts/arial.ttf", 26);
+            label->setAnchorPoint(Vec2(0.0f, 0.5f));
+            label->setColor(Color3B(48, 56, 66));
+            label->setPosition(Vec2(-size.width * 0.5f + 52.0f, size.height * 0.5f - 50.0f));
+            panel->addChild(label, 2);
+        }
+
+        return panel;
     }
 
-    return panel;
+    Node *createSlotDecoration(const Size &size, const Vec2 &center, const std::string &title)
+    {
+        Node *slot = Node::create();
+        slot->setPosition(center);
+
+        DrawNode *frame = DrawNode::create();
+        frame->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(1.0f, 1.0f, 1.0f, 0.12f));
+        frame->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.39f, 0.43f, 0.48f, 0.55f));
+        slot->addChild(frame);
+
+        Label *label = Label::createWithTTF(title, "fonts/arial.ttf", 26);
+        label->setColor(Color3B(88, 98, 110));
+        label->setPosition(Vec2(0.0f, size.height * 0.5f + 28.0f));
+        slot->addChild(label, 1);
+
+        return slot;
+    }
+
+    Node *createInfoChip(const Size &size, const Vec2 &center, const std::string &text)
+    {
+        Node *chip = Node::create();
+        chip->setPosition(center);
+
+        DrawNode *background = DrawNode::create();
+        background->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(1.0f, 1.0f, 1.0f, 0.55f));
+        background->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.34f, 0.38f, 0.44f, 0.38f));
+        chip->addChild(background);
+
+        Label *label = Label::createWithTTF(text, "fonts/arial.ttf", 24);
+        label->setWidth(size.width - 44.0f);
+        label->setAlignment(TextHAlignment::CENTER);
+        label->setColor(Color3B(66, 72, 82));
+        label->setPosition(Vec2::ZERO);
+        chip->addChild(label, 1);
+
+        return chip;
+    }
 }
 
-Node* createSlotDecoration(const Size& size, const Vec2& center, const std::string& title)
-{
-    Node* slot = Node::create();
-    slot->setPosition(center);
-
-    DrawNode* frame = DrawNode::create();
-    frame->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(1.0f, 1.0f, 1.0f, 0.12f));
-    frame->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.39f, 0.43f, 0.48f, 0.55f));
-    slot->addChild(frame);
-
-    Label* label = Label::createWithTTF(title, "fonts/arial.ttf", 26);
-    label->setColor(Color3B(88, 98, 110));
-    label->setPosition(Vec2(0.0f, size.height * 0.5f + 28.0f));
-    slot->addChild(label, 1);
-
-    return slot;
-}
-
-Node* createInfoChip(const Size& size, const Vec2& center, const std::string& text)
-{
-    Node* chip = Node::create();
-    chip->setPosition(center);
-
-    DrawNode* background = DrawNode::create();
-    background->drawSolidRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(1.0f, 1.0f, 1.0f, 0.55f));
-    background->drawRect(Vec2(-size.width * 0.5f, -size.height * 0.5f), Vec2(size.width * 0.5f, size.height * 0.5f), Color4F(0.34f, 0.38f, 0.44f, 0.38f));
-    chip->addChild(background);
-
-    Label* label = Label::createWithTTF(text, "fonts/arial.ttf", 24);
-    label->setWidth(size.width - 44.0f);
-    label->setAlignment(TextHAlignment::CENTER);
-    label->setColor(Color3B(66, 72, 82));
-    label->setPosition(Vec2::ZERO);
-    chip->addChild(label, 1);
-
-    return chip;
-}
-}
-
-Scene* CardGameScene::createScene()
+Scene *CardGameScene::createScene()
 {
     return CardGameScene::create();
 }
@@ -129,8 +129,8 @@ bool CardGameScene::init()
     else
     {
         CCLOG("Level '%s' clearable: %s",
-            loadResult.definition.levelId.c_str(),
-            loadResult.solvable ? "true" : "false");
+              loadResult.definition.levelId.c_str(),
+              loadResult.solvable ? "true" : "false");
         _loadedLevelDefinition = loadResult.definition;
         _hasLoadedLevelDefinition = loadResult.hasLoadedDefinition;
         applyLevelLayout(loadResult.definition);
@@ -156,7 +156,7 @@ bool CardGameScene::init()
     return true;
 }
 
-void CardGameScene::applyLevelLayout(const cardgame::LevelDefinition& definition)
+void CardGameScene::applyLevelLayout(const cardgame::LevelDefinition &definition)
 {
     // 先落默认值，再用关卡配置覆盖，避免关卡漏字段时场景不可用。
     applyDefaultLayout();
@@ -201,7 +201,7 @@ void CardGameScene::applyLevelLayout(const cardgame::LevelDefinition& definition
         _tableauPositions.clear();
         for (std::size_t i = 0; i < definition.layout.tableauPositions.size(); ++i)
         {
-            const cardgame::LevelVector2& point = definition.layout.tableauPositions[i];
+            const cardgame::LevelVector2 &point = definition.layout.tableauPositions[i];
             _tableauPositions.push_back(Vec2(point.x, point.y));
         }
     }
@@ -224,28 +224,27 @@ void CardGameScene::applyDefaultLayout()
         Vec2(360.0f, 1140.0f),
         Vec2(540.0f, 1140.0f),
         Vec2(270.0f, 1320.0f),
-        Vec2(450.0f, 1320.0f)
-    };
+        Vec2(450.0f, 1320.0f)};
 }
 
 void CardGameScene::buildBackground()
 {
-    LayerColor* background = LayerColor::create(Color4B(235, 240, 232, 255));
+    LayerColor *background = LayerColor::create(Color4B(235, 240, 232, 255));
     addChild(background);
 
-    DrawNode* headerBand = DrawNode::create();
+    DrawNode *headerBand = DrawNode::create();
     headerBand->drawSolidRect(Vec2(0.0f, 2080.0f - kHeaderHeight), Vec2(1080.0f, 2080.0f), Color4F(0.84f, 0.90f, 0.87f, 1.0f));
     headerBand->drawRect(Vec2(0.0f, 2080.0f - kHeaderHeight), Vec2(1080.0f, 2080.0f), Color4F(0.32f, 0.38f, 0.36f, 0.45f));
     addChild(headerBand, 0);
 
     const float mainAreaHeight = 2080.0f - kHeaderHeight - kBottomAreaHeight;
-    Node* tableauPanel = createPanel(Size(1080.0f, mainAreaHeight), Vec2(540.0f, kBottomAreaHeight + mainAreaHeight * 0.5f), Color4F(0.88f, 0.93f, 0.90f, 1.0f), "");
+    Node *tableauPanel = createPanel(Size(1080.0f, mainAreaHeight), Vec2(540.0f, kBottomAreaHeight + mainAreaHeight * 0.5f), Color4F(0.88f, 0.93f, 0.90f, 1.0f), "");
     addChild(tableauPanel, 0);
 
-    Node* bottomPanel = createPanel(Size(1080.0f, kBottomAreaHeight), Vec2(540.0f, kBottomAreaHeight * 0.5f), Color4F(0.95f, 0.92f, 0.85f, 1.0f), "");
+    Node *bottomPanel = createPanel(Size(1080.0f, kBottomAreaHeight), Vec2(540.0f, kBottomAreaHeight * 0.5f), Color4F(0.95f, 0.92f, 0.85f, 1.0f), "");
     addChild(bottomPanel, 0);
 
-    DrawNode* centerDivider = DrawNode::create();
+    DrawNode *centerDivider = DrawNode::create();
     centerDivider->drawSegment(Vec2(540.0f, 72.0f), Vec2(540.0f, kBottomAreaHeight - 88.0f), 1.4f, Color4F(0.44f, 0.43f, 0.38f, 0.35f));
     addChild(centerDivider, 1);
 
@@ -255,10 +254,10 @@ void CardGameScene::buildBackground()
 
 void CardGameScene::createCardViews()
 {
-    const std::unordered_map<int, cardgame::CardData>& cards = _state.getCards();
+    const std::unordered_map<int, cardgame::CardData> &cards = _state.getCards();
     for (std::unordered_map<int, cardgame::CardData>::const_iterator it = cards.begin(); it != cards.end(); ++it)
     {
-        cardgame::CardView* view = cardgame::CardView::create(_cardSize);
+        cardgame::CardView *view = cardgame::CardView::create(_cardSize);
         _cardLayer->addChild(view);
         _cardViews[it->first] = view;
     }
@@ -266,15 +265,15 @@ void CardGameScene::createCardViews()
 
 void CardGameScene::createTouchHandling()
 {
-    EventListenerTouchOneByOne* listener = EventListenerTouchOneByOne::create();
+    EventListenerTouchOneByOne *listener = EventListenerTouchOneByOne::create();
     listener->setSwallowTouches(false);
 
-    listener->onTouchBegan = [this](Touch*, Event*)
+    listener->onTouchBegan = [this](Touch *, Event *)
     {
         return !_inputLocked && !_isLevelComplete;
     };
 
-    listener->onTouchEnded = [this](Touch* touch, Event*)
+    listener->onTouchEnded = [this](Touch *touch, Event *)
     {
         if (!_inputLocked)
         {
@@ -307,9 +306,7 @@ void CardGameScene::onUndoRequested()
 
     _undoStack.pop_back();
     refreshAllViews(true, [this]()
-    {
-        updateHudText("Undo completed.");
-    });
+                    { updateHudText("Undo completed."); });
 }
 
 void CardGameScene::onResetRequested()
@@ -320,8 +317,8 @@ void CardGameScene::onResetRequested()
     }
 
     _state = _hasLoadedLevelDefinition
-        ? cardgame::GameState::createFromLevelDefinition(_loadedLevelDefinition)
-        : cardgame::GameState::createDemoState();
+                 ? cardgame::GameState::createFromLevelDefinition(_loadedLevelDefinition)
+                 : cardgame::GameState::createDemoState();
     _undoStack.clear();
     refreshAllViews(false);
     updateHudText("Demo reset.");
@@ -332,7 +329,7 @@ void CardGameScene::onReplayRequested()
     onResetRequested();
 }
 
-bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
+bool CardGameScene::tryHandleCardTap(const Vec2 &worldPoint)
 {
     if (_isLevelComplete)
     {
@@ -342,7 +339,7 @@ bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
     const int stockTopId = _state.getStockTopId();
     if (stockTopId >= 0)
     {
-        cardgame::CardView* stockView = _cardViews[stockTopId];
+        cardgame::CardView *stockView = _cardViews[stockTopId];
         if (stockView != nullptr && stockView->isVisible() && stockView->hitTest(worldPoint))
         {
             executeCommand(cardgame::GameCommandPtr(new cardgame::DrawStockCommand()));
@@ -350,7 +347,7 @@ bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
         }
     }
 
-    const std::vector<int>& tableauSlots = _state.getTableauSlots();
+    const std::vector<int> &tableauSlots = _state.getTableauSlots();
     std::vector<int> hitOrder;
     hitOrder.reserve(tableauSlots.size());
     for (std::size_t i = 0; i < tableauSlots.size(); ++i)
@@ -366,7 +363,7 @@ bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
 
     // 点击判定按当前可见 z 序从上到下检测，避免被覆盖的牌抢到点击。
     std::sort(hitOrder.begin(), hitOrder.end(), [this](int lhs, int rhs)
-    {
+              {
         cardgame::CardView* lhsView = _cardViews[lhs];
         cardgame::CardView* rhsView = _cardViews[rhs];
         const int lhsZOrder = lhsView == nullptr ? std::numeric_limits<int>::min() : lhsView->getLocalZOrder();
@@ -376,15 +373,14 @@ bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
             return lhsZOrder > rhsZOrder;
         }
 
-        return lhs > rhs;
-    });
+        return lhs > rhs; });
 
     for (std::size_t i = 0; i < hitOrder.size(); ++i)
     {
         const int cardId = hitOrder[i];
 
-        cardgame::CardView* view = _cardViews[cardId];
-        const cardgame::CardData* card = _state.getCard(cardId);
+        cardgame::CardView *view = _cardViews[cardId];
+        const cardgame::CardData *card = _state.getCard(cardId);
         if (view == nullptr || card == nullptr || !view->isVisible() || !view->hitTest(worldPoint))
         {
             continue;
@@ -409,7 +405,7 @@ bool CardGameScene::tryHandleCardTap(const Vec2& worldPoint)
     return false;
 }
 
-void CardGameScene::executeCommand(const cardgame::GameCommandPtr& command)
+void CardGameScene::executeCommand(const cardgame::GameCommandPtr &command)
 {
     if (command == nullptr || _inputLocked)
     {
@@ -424,12 +420,10 @@ void CardGameScene::executeCommand(const cardgame::GameCommandPtr& command)
 
     _undoStack.push_back(command);
     refreshAllViews(true, [this]()
-    {
-        updateHudText("Move completed.");
-    });
+                    { updateHudText("Move completed."); });
 }
 
-void CardGameScene::refreshAllViews(bool animated, const std::function<void()>& completion)
+void CardGameScene::refreshAllViews(bool animated, const std::function<void()> &completion)
 {
     _inputLocked = animated;
 
@@ -454,11 +448,11 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()>& 
     };
 
     // 每次都从最新状态重新计算所有牌的位置，这样 Undo 只需要恢复数据，不需要记录动画轨迹。
-    const std::unordered_map<int, cardgame::CardData>& cards = _state.getCards();
+    const std::unordered_map<int, cardgame::CardData> &cards = _state.getCards();
     for (std::unordered_map<int, cardgame::CardData>::const_iterator it = cards.begin(); it != cards.end(); ++it)
     {
-        const cardgame::CardData& card = it->second;
-        cardgame::CardView* view = _cardViews[card.id];
+        const cardgame::CardData &card = it->second;
+        cardgame::CardView *view = _cardViews[card.id];
         if (view == nullptr)
         {
             continue;
@@ -485,13 +479,12 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()>& 
         view->runAction(Sequence::create(
             MoveTo::create(kMoveDuration, placement.position),
             CallFunc::create([pendingAnimations, finish]()
-            {
+                             {
                 --(*pendingAnimations);
                 if (*pendingAnimations == 0)
                 {
                     finish();
-                }
-            }),
+                } }),
             nullptr));
     }
 
@@ -501,7 +494,7 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()>& 
     }
 }
 
-cocos2d::Vec2 CardGameScene::computeTableauPosition(const cardgame::CardData& card) const
+cocos2d::Vec2 CardGameScene::computeTableauPosition(const cardgame::CardData &card) const
 {
     if (card.blockers.empty() || !card.children.empty())
     {
@@ -512,7 +505,7 @@ cocos2d::Vec2 CardGameScene::computeTableauPosition(const cardgame::CardData& ca
     int validBlockerCount = 0;
     for (std::size_t i = 0; i < card.blockers.size(); ++i)
     {
-        const cardgame::CardData* blocker = _state.getCard(card.blockers[i]);
+        const cardgame::CardData *blocker = _state.getCard(card.blockers[i]);
         if (blocker == nullptr || blocker->tableauIndex < 0 || blocker->tableauIndex >= static_cast<int>(_tableauPositions.size()))
         {
             continue;
@@ -531,7 +524,7 @@ cocos2d::Vec2 CardGameScene::computeTableauPosition(const cardgame::CardData& ca
     return blockerCenter + _coveredCardOffset;
 }
 
-CardGameScene::CardPlacement CardGameScene::computePlacement(const cardgame::CardData& card) const
+CardGameScene::CardPlacement CardGameScene::computePlacement(const cardgame::CardData &card) const
 {
     CardPlacement placement;
 
@@ -546,7 +539,7 @@ CardGameScene::CardPlacement CardGameScene::computePlacement(const cardgame::Car
 
     if (card.zone == cardgame::CardZone::Stock)
     {
-        const std::vector<int>& stockPile = _state.getStockPile();
+        const std::vector<int> &stockPile = _state.getStockPile();
         for (std::size_t i = 0; i < stockPile.size(); ++i)
         {
             if (stockPile[i] != card.id)
@@ -569,7 +562,7 @@ CardGameScene::CardPlacement CardGameScene::computePlacement(const cardgame::Car
         }
     }
 
-    const std::vector<int>& wastePile = _state.getWastePile();
+    const std::vector<int> &wastePile = _state.getWastePile();
     for (std::size_t i = 0; i < wastePile.size(); ++i)
     {
         if (wastePile[i] != card.id)
@@ -608,7 +601,7 @@ void CardGameScene::updateCompletionOverlay()
     }
 }
 
-void CardGameScene::updateHudText(const std::string& message)
+void CardGameScene::updateHudText(const std::string &message)
 {
     if (_overlayView != nullptr)
     {

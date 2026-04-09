@@ -7,11 +7,11 @@
 
 namespace cardgame
 {
-class LevelLoader
-{
-public:
-    static bool loadFromJsonFile(const std::string& path, LevelDefinition& outDefinition, std::string* outErrorMessage = nullptr);
-};
+    class LevelLoader
+    {
+    public:
+        static bool loadFromJsonFile(const std::string &path, LevelDefinition &outDefinition, std::string *outErrorMessage = nullptr);
+    };
 }
 
 #endif
