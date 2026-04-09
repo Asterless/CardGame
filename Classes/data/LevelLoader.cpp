@@ -3,91 +3,104 @@
 #include "cocos2d.h"
 #include "json/document.h"
 
+#include <utility>
+
 namespace cardgame
 {
     namespace
     {
-        bool fail(const std::string &message, std::string *outErrorMessage)
+        LevelLoadResult fail(const std::string &message)
         {
-            if (outErrorMessage != nullptr)
-            {
-                *outErrorMessage = message;
-            }
-            return false;
+            return {nullopt, message};
         }
 
-        bool readIntArray(const rapidjson::Value &value, std::vector<int> &outArray)
+        Optional<std::vector<int>> readIntArray(const rapidjson::Value &value)
         {
             if (!value.IsArray())
             {
-                return false;
+                return nullopt;
             }
 
-            outArray.clear();
+            std::vector<int> outArray;
+            outArray.reserve(value.Size());
             for (rapidjson::SizeType i = 0; i < value.Size(); ++i)
             {
                 if (!value[i].IsInt())
                 {
-                    return false;
+                    return nullopt;
                 }
 
                 outArray.push_back(value[i].GetInt());
             }
 
-            return true;
+            return outArray;
         }
 
-        bool readFloat(const rapidjson::Value &value, float &outValue)
+        Optional<float> readFloat(const rapidjson::Value &value)
         {
             if (!value.IsNumber())
             {
-                return false;
+                return nullopt;
             }
 
-            outValue = value.GetFloat();
-            return true;
+            return value.GetFloat();
         }
 
-        bool readVector2(const rapidjson::Value &value, LevelVector2 &outValue)
+        Optional<LevelVector2> readVector2(const rapidjson::Value &value)
         {
             if (!value.IsObject() || !value.HasMember("x") || !value.HasMember("y"))
             {
-                return false;
+                return nullopt;
             }
 
-            return readFloat(value["x"], outValue.x) && readFloat(value["y"], outValue.y);
+            const auto x = readFloat(value["x"]);
+            const auto y = readFloat(value["y"]);
+            if (!x.has_value() || !y.has_value())
+            {
+                return nullopt;
+            }
+
+            return LevelVector2{*x, *y};
         }
 
-        bool readSize(const rapidjson::Value &value, LevelSize &outSize)
+        Optional<LevelSize> readSize(const rapidjson::Value &value)
         {
             if (!value.IsObject() || !value.HasMember("width") || !value.HasMember("height"))
             {
-                return false;
+                return nullopt;
             }
 
-            return readFloat(value["width"], outSize.width) && readFloat(value["height"], outSize.height);
+            const auto width = readFloat(value["width"]);
+            const auto height = readFloat(value["height"]);
+            if (!width.has_value() || !height.has_value())
+            {
+                return nullopt;
+            }
+
+            return LevelSize{*width, *height};
         }
 
-        bool readVector2Array(const rapidjson::Value &value, std::vector<LevelVector2> &outArray)
+        Optional<std::vector<LevelVector2>> readVector2Array(const rapidjson::Value &value)
         {
             if (!value.IsArray())
             {
-                return false;
+                return nullopt;
             }
 
-            outArray.clear();
+            std::vector<LevelVector2> outArray;
+            outArray.reserve(value.Size());
             for (rapidjson::SizeType i = 0; i < value.Size(); ++i)
             {
-                LevelVector2 point;
-                if (!readVector2(value[i], point))
+                const auto point = readVector2(value[i]);
+                if (!point.has_value())
                 {
-                    return false;
+                    return nullopt;
                 }
 
-                outArray.push_back(point);
+                outArray.push_back(*point);
             }
 
-            return true;
+            return outArray;
         }
 
         bool parseSuit(const std::string &text, Suit &outSuit)
@@ -138,119 +151,183 @@ namespace cardgame
         }
     }
 
-    bool LevelLoader::loadFromJsonFile(const std::string &path, LevelDefinition &outDefinition, std::string *outErrorMessage)
+    LevelLoadResult LevelLoader::loadFromJsonFile(const std::string &path)
     {
         const std::string content = cocos2d::FileUtils::getInstance()->getStringFromFile(path);
         if (content.empty())
         {
-            return fail("Level file is empty or missing: " + path, outErrorMessage);
+            return fail("Level file is empty or missing: " + path);
         }
 
         rapidjson::Document document;
         document.Parse<0>(content.c_str());
         if (document.HasParseError() || !document.IsObject())
         {
-            return fail("Level JSON is invalid: " + path, outErrorMessage);
+            return fail("Level JSON is invalid: " + path);
         }
 
-        if (!document.HasMember("tableauSlots") || !readIntArray(document["tableauSlots"], outDefinition.tableauSlots))
+        LevelDefinition definition;
+
+        if (!document.HasMember("tableauSlots"))
         {
-            return fail("tableauSlots must be an integer array.", outErrorMessage);
+            return fail("tableauSlots must be an integer array.");
         }
-        if (!document.HasMember("stockPile") || !readIntArray(document["stockPile"], outDefinition.stockPile))
+        const auto tableauSlots = readIntArray(document["tableauSlots"]);
+        if (!tableauSlots.has_value())
         {
-            return fail("stockPile must be an integer array.", outErrorMessage);
+            return fail("tableauSlots must be an integer array.");
         }
-        if (!document.HasMember("wastePile") || !readIntArray(document["wastePile"], outDefinition.wastePile))
+        definition.tableauSlots = *tableauSlots;
+
+        if (!document.HasMember("stockPile"))
         {
-            return fail("wastePile must be an integer array.", outErrorMessage);
+            return fail("stockPile must be an integer array.");
         }
+        const auto stockPile = readIntArray(document["stockPile"]);
+        if (!stockPile.has_value())
+        {
+            return fail("stockPile must be an integer array.");
+        }
+        definition.stockPile = *stockPile;
+
+        if (!document.HasMember("wastePile"))
+        {
+            return fail("wastePile must be an integer array.");
+        }
+        const auto wastePile = readIntArray(document["wastePile"]);
+        if (!wastePile.has_value())
+        {
+            return fail("wastePile must be an integer array.");
+        }
+        definition.wastePile = *wastePile;
+
         if (!document.HasMember("cards") || !document["cards"].IsArray())
         {
-            return fail("cards must be an array.", outErrorMessage);
+            return fail("cards must be an array.");
         }
 
-        outDefinition.levelId = document.HasMember("levelId") && document["levelId"].IsString() ? document["levelId"].GetString() : "";
-        outDefinition.cards.clear();
-        outDefinition.layout = LevelLayoutDefinition();
+        definition.levelId = document.HasMember("levelId") && document["levelId"].IsString() ? document["levelId"].GetString() : "";
 
         if (document.HasMember("layout"))
         {
             const rapidjson::Value &layout = document["layout"];
             if (!layout.IsObject())
             {
-                return fail("layout must be an object.", outErrorMessage);
+                return fail("layout must be an object.");
             }
-            if (layout.HasMember("cardSize") && !readSize(layout["cardSize"], outDefinition.layout.cardSize))
+
+            if (layout.HasMember("cardSize"))
             {
-                return fail("layout.cardSize must contain numeric width and height.", outErrorMessage);
+                const auto cardSize = readSize(layout["cardSize"]);
+                if (!cardSize.has_value())
+                {
+                    return fail("layout.cardSize must contain numeric width and height.");
+                }
+                definition.layout.cardSize = *cardSize;
             }
-            outDefinition.layout.hasCardSize = layout.HasMember("cardSize");
-            if (layout.HasMember("stockBasePosition") && !readVector2(layout["stockBasePosition"], outDefinition.layout.stockBasePosition))
+
+            if (layout.HasMember("stockBasePosition"))
             {
-                return fail("layout.stockBasePosition must contain numeric x and y.", outErrorMessage);
+                const auto stockBasePosition = readVector2(layout["stockBasePosition"]);
+                if (!stockBasePosition.has_value())
+                {
+                    return fail("layout.stockBasePosition must contain numeric x and y.");
+                }
+                definition.layout.stockBasePosition = *stockBasePosition;
             }
-            outDefinition.layout.hasStockBasePosition = layout.HasMember("stockBasePosition");
-            if (layout.HasMember("wasteBasePosition") && !readVector2(layout["wasteBasePosition"], outDefinition.layout.wasteBasePosition))
+
+            if (layout.HasMember("wasteBasePosition"))
             {
-                return fail("layout.wasteBasePosition must contain numeric x and y.", outErrorMessage);
+                const auto wasteBasePosition = readVector2(layout["wasteBasePosition"]);
+                if (!wasteBasePosition.has_value())
+                {
+                    return fail("layout.wasteBasePosition must contain numeric x and y.");
+                }
+                definition.layout.wasteBasePosition = *wasteBasePosition;
             }
-            outDefinition.layout.hasWasteBasePosition = layout.HasMember("wasteBasePosition");
-            if (layout.HasMember("stockPileDepthOffset") && !readVector2(layout["stockPileDepthOffset"], outDefinition.layout.stockPileDepthOffset))
+
+            if (layout.HasMember("stockPileDepthOffset"))
             {
-                return fail("layout.stockPileDepthOffset must contain numeric x and y.", outErrorMessage);
+                const auto stockPileDepthOffset = readVector2(layout["stockPileDepthOffset"]);
+                if (!stockPileDepthOffset.has_value())
+                {
+                    return fail("layout.stockPileDepthOffset must contain numeric x and y.");
+                }
+                definition.layout.stockPileDepthOffset = *stockPileDepthOffset;
             }
-            outDefinition.layout.hasStockPileDepthOffset = layout.HasMember("stockPileDepthOffset");
-            if (layout.HasMember("wastePileDepthOffset") && !readVector2(layout["wastePileDepthOffset"], outDefinition.layout.wastePileDepthOffset))
+
+            if (layout.HasMember("wastePileDepthOffset"))
             {
-                return fail("layout.wastePileDepthOffset must contain numeric x and y.", outErrorMessage);
+                const auto wastePileDepthOffset = readVector2(layout["wastePileDepthOffset"]);
+                if (!wastePileDepthOffset.has_value())
+                {
+                    return fail("layout.wastePileDepthOffset must contain numeric x and y.");
+                }
+                definition.layout.wastePileDepthOffset = *wastePileDepthOffset;
             }
-            outDefinition.layout.hasWastePileDepthOffset = layout.HasMember("wastePileDepthOffset");
-            if (layout.HasMember("coveredCardOffset") && !readVector2(layout["coveredCardOffset"], outDefinition.layout.coveredCardOffset))
+
+            if (layout.HasMember("coveredCardOffset"))
             {
-                return fail("layout.coveredCardOffset must contain numeric x and y.", outErrorMessage);
+                const auto coveredCardOffset = readVector2(layout["coveredCardOffset"]);
+                if (!coveredCardOffset.has_value())
+                {
+                    return fail("layout.coveredCardOffset must contain numeric x and y.");
+                }
+                definition.layout.coveredCardOffset = *coveredCardOffset;
             }
-            outDefinition.layout.hasCoveredCardOffset = layout.HasMember("coveredCardOffset");
-            if (layout.HasMember("controlMenuPosition") && !readVector2(layout["controlMenuPosition"], outDefinition.layout.controlMenuPosition))
+
+            if (layout.HasMember("controlMenuPosition"))
             {
-                return fail("layout.controlMenuPosition must contain numeric x and y.", outErrorMessage);
+                const auto controlMenuPosition = readVector2(layout["controlMenuPosition"]);
+                if (!controlMenuPosition.has_value())
+                {
+                    return fail("layout.controlMenuPosition must contain numeric x and y.");
+                }
+                definition.layout.controlMenuPosition = *controlMenuPosition;
             }
-            outDefinition.layout.hasControlMenuPosition = layout.HasMember("controlMenuPosition");
-            if (layout.HasMember("tableauPositions") && !readVector2Array(layout["tableauPositions"], outDefinition.layout.tableauPositions))
+
+            if (layout.HasMember("tableauPositions"))
             {
-                return fail("layout.tableauPositions must be an array of {x, y}.", outErrorMessage);
+                const auto tableauPositions = readVector2Array(layout["tableauPositions"]);
+                if (!tableauPositions.has_value())
+                {
+                    return fail("layout.tableauPositions must be an array of {x, y}.");
+                }
+                definition.layout.tableauPositions = *tableauPositions;
             }
         }
 
         const rapidjson::Value &cards = document["cards"];
+        definition.cards.clear();
+        definition.cards.reserve(cards.Size());
         for (rapidjson::SizeType i = 0; i < cards.Size(); ++i)
         {
             const rapidjson::Value &cardValue = cards[i];
             if (!cardValue.IsObject())
             {
-                return fail("Each card entry must be an object.", outErrorMessage);
+                return fail("Each card entry must be an object.");
             }
 
             LevelCardDefinition card;
             if (!cardValue.HasMember("id") || !cardValue["id"].IsInt())
             {
-                return fail("Card id is missing or invalid.", outErrorMessage);
+                return fail("Card id is missing or invalid.");
             }
             if (!cardValue.HasMember("suit") || !cardValue["suit"].IsString() || !parseSuit(cardValue["suit"].GetString(), card.suit))
             {
-                return fail("Card suit is missing or invalid.", outErrorMessage);
+                return fail("Card suit is missing or invalid.");
             }
             if (!cardValue.HasMember("rank") || !cardValue["rank"].IsInt())
             {
-                return fail("Card rank is missing or invalid.", outErrorMessage);
+                return fail("Card rank is missing or invalid.");
             }
             if (!cardValue.HasMember("zone") || !cardValue["zone"].IsString() || !parseZone(cardValue["zone"].GetString(), card.zone))
             {
-                return fail("Card zone is missing or invalid.", outErrorMessage);
+                return fail("Card zone is missing or invalid.");
             }
             if (!cardValue.HasMember("faceUp") || !cardValue["faceUp"].IsBool())
             {
-                return fail("Card faceUp is missing or invalid.", outErrorMessage);
+                return fail("Card faceUp is missing or invalid.");
             }
 
             card.id = cardValue["id"].GetInt();
@@ -258,18 +335,29 @@ namespace cardgame
             card.faceUp = cardValue["faceUp"].GetBool();
             card.tableauIndex = cardValue.HasMember("tableauIndex") && cardValue["tableauIndex"].IsInt() ? cardValue["tableauIndex"].GetInt() : -1;
 
-            if (cardValue.HasMember("blockers") && !readIntArray(cardValue["blockers"], card.blockers))
+            if (cardValue.HasMember("blockers"))
             {
-                return fail("Card blockers must be an integer array.", outErrorMessage);
-            }
-            if (cardValue.HasMember("children") && !readIntArray(cardValue["children"], card.children))
-            {
-                return fail("Card children must be an integer array.", outErrorMessage);
+                const auto blockers = readIntArray(cardValue["blockers"]);
+                if (!blockers.has_value())
+                {
+                    return fail("Card blockers must be an integer array.");
+                }
+                card.blockers = *blockers;
             }
 
-            outDefinition.cards.push_back(card);
+            if (cardValue.HasMember("children"))
+            {
+                const auto children = readIntArray(cardValue["children"]);
+                if (!children.has_value())
+                {
+                    return fail("Card children must be an integer array.");
+                }
+                card.children = *children;
+            }
+
+            definition.cards.push_back(card);
         }
 
-        return true;
+        return {std::move(definition), ""};
     }
 }

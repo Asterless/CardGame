@@ -1,9 +1,10 @@
-#ifndef __CARD_GAME_SCENE_H__
-#define __CARD_GAME_SCENE_H__
+#ifndef CARD_GAME_SCENE_H
+#define CARD_GAME_SCENE_H
 
 #include "data/LevelDefinition.h"
 #include "logic/GameCommand.h"
 #include "logic/LevelSessionLoader.h"
+#include "support/ObserverPtr.h"
 #include "view/CardView.h"
 #include "view/GameOverlayView.h"
 
@@ -27,7 +28,6 @@ private:
         int zOrder = 0;
         bool visible = true;
         bool clickable = false;
-        bool isWasteTop = false;
     };
 
     void buildBackground();
@@ -52,9 +52,10 @@ private:
 private:
     cardgame::GameState _state;
     cardgame::LevelDefinition _loadedLevelDefinition;
-    cocos2d::Node *_cardLayer = nullptr;
-    cardgame::GameOverlayView *_overlayView = nullptr;
-    std::unordered_map<int, cardgame::CardView *> _cardViews;
+    // Non-owning node references. cocos2d-x retains them via the scene graph.
+    cardgame::ObserverPtr<cocos2d::Node> _cardLayer = nullptr;
+    cardgame::ObserverPtr<cardgame::GameOverlayView> _overlayView = nullptr;
+    std::unordered_map<int, cardgame::ObserverPtr<cardgame::CardView>> _cardViews;
     std::vector<cardgame::GameCommandPtr> _undoStack;
     std::vector<cocos2d::Vec2> _tableauPositions;
     cocos2d::Vec2 _stockBasePosition;

@@ -75,18 +75,16 @@ namespace cardgame
         return true;
     }
 
-    void CardView::syncWithCard(const CardData &card, bool clickable, bool isWasteTop)
+    void CardView::syncWithCard(const CardData &card, bool clickable)
     {
         _cardId = card.id;
         setVisible(true);
         setScale(1.0f);
         setOpacity(255);
         const bool isRed = isRedSuit(card.suit);
-        std::string hintText;
 
         if (!card.faceUp)
         {
-            hintText = "covered";
             _backFrame->setVisible(true);
             _backAccent->setVisible(true);
             _backLabel->setVisible(false);
@@ -98,8 +96,6 @@ namespace cardgame
         }
         else
         {
-            hintText = card.zone == CardZone::Waste ? "current" : (card.zone == CardZone::Stock ? "draw" : "");
-
             _backFrame->setVisible(false);
             _backAccent->setVisible(false);
             _backLabel->setVisible(false);

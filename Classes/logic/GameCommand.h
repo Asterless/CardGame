@@ -1,7 +1,8 @@
-#ifndef __CARDGAME_GAME_COMMAND_H__
-#define __CARDGAME_GAME_COMMAND_H__
+#ifndef CARDGAME_GAME_COMMAND_H
+#define CARDGAME_GAME_COMMAND_H
 
 #include "logic/GameState.h"
+#include "support/Optional.h"
 
 #include <memory>
 
@@ -10,16 +11,16 @@ namespace cardgame
     class GameCommand
     {
     public:
-        virtual ~GameCommand() {}
+        virtual ~GameCommand() = default;
 
         virtual bool execute(GameState &state) = 0;
         virtual bool undo(GameState &state) = 0;
 
-        const GameDelta &getDelta() const;
+        const Optional<GameDelta> &getDelta() const;
 
     protected:
         // execute 时记录一次 delta，undo 时只依赖这份数据恢复，避免回退逻辑猜状态。
-        GameDelta _delta;
+        Optional<GameDelta> _delta;
     };
 
     class DrawStockCommand : public GameCommand
@@ -42,7 +43,7 @@ namespace cardgame
         int _cardId;
     };
 
-    typedef std::shared_ptr<GameCommand> GameCommandPtr;
+    using GameCommandPtr = std::shared_ptr<GameCommand>;
 }
 
 #endif

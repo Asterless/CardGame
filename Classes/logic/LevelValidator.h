@@ -1,5 +1,5 @@
-#ifndef __CARDGAME_LEVEL_VALIDATOR_H__
-#define __CARDGAME_LEVEL_VALIDATOR_H__
+#ifndef CARDGAME_LEVEL_VALIDATOR_H
+#define CARDGAME_LEVEL_VALIDATOR_H
 
 #include "data/LevelDefinition.h"
 

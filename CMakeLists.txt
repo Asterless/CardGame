@@ -82,6 +82,8 @@ list(APPEND GAME_HEADER
      Classes/data/CardData.h
      Classes/data/LevelDefinition.h
      Classes/data/LevelLoader.h
+     Classes/support/Optional.h
+     Classes/support/ObserverPtr.h
      )
 
 if(ANDROID)

@@ -1,8 +1,9 @@
-#ifndef __CARDGAME_GAME_STATE_H__
-#define __CARDGAME_GAME_STATE_H__
+#ifndef CARDGAME_GAME_STATE_H
+#define CARDGAME_GAME_STATE_H
 
 #include "data/CardData.h"
 #include "data/LevelDefinition.h"
+#include "support/Optional.h"
 
 #include <unordered_map>
 
@@ -17,7 +18,6 @@ namespace cardgame
 
     struct GameDelta
     {
-        bool valid = false;
         GameActionType type = GameActionType::DrawStock;
         int movedCardId = -1;
         int previousWasteTopId = -1;
@@ -47,10 +47,10 @@ namespace cardgame
         bool canDrawFromStock() const;
         bool canMatchTableau(int cardId) const;
 
-        bool drawFromStock(GameDelta &outDelta);
+        Optional<GameDelta> drawFromStock();
         bool undoDrawFromStock(const GameDelta &delta);
 
-        bool matchTableau(int cardId, GameDelta &outDelta);
+        Optional<GameDelta> matchTableau(int cardId);
         bool undoMatchTableau(const GameDelta &delta);
 
     private:

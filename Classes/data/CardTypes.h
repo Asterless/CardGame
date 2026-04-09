@@ -1,5 +1,5 @@
-#ifndef __CARDGAME_CARD_TYPES_H__
-#define __CARDGAME_CARD_TYPES_H__
+#ifndef CARDGAME_CARD_TYPES_H
+#define CARDGAME_CARD_TYPES_H
 
 #include <string>
 

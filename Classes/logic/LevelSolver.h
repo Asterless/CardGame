@@ -1,5 +1,5 @@
-#ifndef __CARDGAME_LEVEL_SOLVER_H__
-#define __CARDGAME_LEVEL_SOLVER_H__
+#ifndef CARDGAME_LEVEL_SOLVER_H
+#define CARDGAME_LEVEL_SOLVER_H
 
 #include "data/LevelDefinition.h"
 

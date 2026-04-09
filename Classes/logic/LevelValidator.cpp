@@ -24,14 +24,14 @@ namespace cardgame
             return std::find(values.begin(), values.end(), target) != values.end();
         }
 
-        typedef std::map<int, const LevelCardDefinition *> CardLookup;
+        using CardLookup = std::map<int, std::size_t>;
 
         CardLookup buildCardLookup(const LevelDefinition &definition)
         {
             CardLookup lookup;
-            for (std::size_t i = 0; i < definition.cards.size(); ++i)
+            for (std::size_t index = 0; index < definition.cards.size(); ++index)
             {
-                lookup[definition.cards[i].id] = &definition.cards[i];
+                lookup[definition.cards[index].id] = index;
             }
 
             return lookup;
@@ -39,9 +39,8 @@ namespace cardgame
 
         void validateCardDefinitions(const LevelDefinition &definition, std::set<int> &outCardIds, std::vector<std::string> &outErrors)
         {
-            for (std::size_t i = 0; i < definition.cards.size(); ++i)
+            for (const auto &card : definition.cards)
             {
-                const LevelCardDefinition &card = definition.cards[i];
                 if (card.id < 0)
                 {
                     addError(outErrors, "Card id must be non-negative.");
@@ -58,9 +57,8 @@ namespace cardgame
 
         void validateContainers(const LevelDefinition &definition, const std::set<int> &cardIds, std::map<int, int> &outPlacementCounts, std::vector<std::string> &outErrors)
         {
-            for (std::size_t i = 0; i < definition.tableauSlots.size(); ++i)
+            for (const int cardId : definition.tableauSlots)
             {
-                const int cardId = definition.tableauSlots[i];
                 if (cardId < 0)
                 {
                     continue;
@@ -75,9 +73,8 @@ namespace cardgame
                 ++outPlacementCounts[cardId];
             }
 
-            for (std::size_t i = 0; i < definition.stockPile.size(); ++i)
+            for (const int cardId : definition.stockPile)
             {
-                const int cardId = definition.stockPile[i];
                 if (!containsId(cardIds, cardId))
                 {
                     std::ostringstream stream;
@@ -88,9 +85,8 @@ namespace cardgame
                 ++outPlacementCounts[cardId];
             }
 
-            for (std::size_t i = 0; i < definition.wastePile.size(); ++i)
+            for (const int cardId : definition.wastePile)
             {
-                const int cardId = definition.wastePile[i];
                 if (!containsId(cardIds, cardId))
                 {
                     std::ostringstream stream;
@@ -106,11 +102,9 @@ namespace cardgame
         {
             const CardLookup cardLookup = buildCardLookup(definition);
 
-            for (std::size_t i = 0; i < definition.cards.size(); ++i)
+            for (const auto &card : definition.cards)
             {
-                const LevelCardDefinition &card = definition.cards[i];
-
-                std::map<int, int>::const_iterator placementIt = placementCounts.find(card.id);
+                const auto placementIt = placementCounts.find(card.id);
                 const int placementCount = placementIt == placementCounts.end() ? 0 : placementIt->second;
                 if (placementCount != 1)
                 {
@@ -141,9 +135,8 @@ namespace cardgame
                     addError(outErrors, stream.str());
                 }
 
-                for (std::size_t blockerIndex = 0; blockerIndex < card.blockers.size(); ++blockerIndex)
+                for (const int blockerId : card.blockers)
                 {
-                    const int blockerId = card.blockers[blockerIndex];
                     if (!containsId(cardIds, blockerId))
                     {
                         std::ostringstream stream;
@@ -158,8 +151,8 @@ namespace cardgame
                     }
                     else
                     {
-                        CardLookup::const_iterator blockerIt = cardLookup.find(blockerId);
-                        if (blockerIt != cardLookup.end() && !containsValue(blockerIt->second->children, card.id))
+                        const auto blockerIt = cardLookup.find(blockerId);
+                        if (blockerIt != cardLookup.end() && !containsValue(definition.cards[blockerIt->second].children, card.id))
                         {
                             std::ostringstream stream;
                             stream << "Blocker relation mismatch: blocker " << blockerId << " must list child " << card.id << ".";
@@ -168,9 +161,8 @@ namespace cardgame
                     }
                 }
 
-                for (std::size_t childIndex = 0; childIndex < card.children.size(); ++childIndex)
+                for (const int childId : card.children)
                 {
-                    const int childId = card.children[childIndex];
                     if (!containsId(cardIds, childId))
                     {
                         std::ostringstream stream;
@@ -185,8 +177,8 @@ namespace cardgame
                     }
                     else
                     {
-                        CardLookup::const_iterator childIt = cardLookup.find(childId);
-                        if (childIt != cardLookup.end() && !containsValue(childIt->second->blockers, card.id))
+                        const auto childIt = cardLookup.find(childId);
+                        if (childIt != cardLookup.end() && !containsValue(definition.cards[childIt->second].blockers, card.id))
                         {
                             std::ostringstream stream;
                             stream << "Child relation mismatch: child " << childId << " must list blocker " << card.id << ".";
@@ -211,9 +203,8 @@ namespace cardgame
             if (adjacencyIt != adjacency.end())
             {
                 const std::vector<int> &nextNodes = adjacencyIt->second;
-                for (std::size_t i = 0; i < nextNodes.size(); ++i)
+                for (const int nextId : nextNodes)
                 {
-                    const int nextId = nextNodes[i];
                     const int nextState = visitState[nextId];
                     if (nextState == 0)
                     {
@@ -246,24 +237,21 @@ namespace cardgame
             std::map<int, std::vector<int>> blockerAdjacency;
             std::map<int, std::vector<int>> childAdjacency;
 
-            for (std::size_t i = 0; i < definition.cards.size(); ++i)
+            for (const auto &card : definition.cards)
             {
-                const LevelCardDefinition &card = definition.cards[i];
                 blockerAdjacency[card.id];
                 childAdjacency[card.id];
 
-                for (std::size_t blockerIndex = 0; blockerIndex < card.blockers.size(); ++blockerIndex)
+                for (const int blockerId : card.blockers)
                 {
-                    const int blockerId = card.blockers[blockerIndex];
                     if (cardLookup.find(blockerId) != cardLookup.end())
                     {
                         blockerAdjacency[blockerId].push_back(card.id);
                     }
                 }
 
-                for (std::size_t childIndex = 0; childIndex < card.children.size(); ++childIndex)
+                for (const int childId : card.children)
                 {
-                    const int childId = card.children[childIndex];
                     if (cardLookup.find(childId) != cardLookup.end())
                     {
                         childAdjacency[card.id].push_back(childId);
@@ -274,24 +262,26 @@ namespace cardgame
             std::map<int, int> visitState;
             std::vector<int> stack;
             std::vector<int> cycle;
-            for (CardLookup::const_iterator it = cardLookup.begin(); it != cardLookup.end(); ++it)
+            for (const auto &entry : cardLookup)
             {
-                visitState[it->first] = 0;
+                visitState[entry.first] = 0;
             }
 
-            for (CardLookup::const_iterator it = cardLookup.begin(); it != cardLookup.end(); ++it)
+            for (const auto &entry : cardLookup)
             {
-                if (visitState[it->first] != 0)
+                if (visitState[entry.first] != 0)
                 {
                     continue;
                 }
-                if (detectCycleDfs(it->first, blockerAdjacency, visitState, stack, cycle))
+                if (detectCycleDfs(entry.first, blockerAdjacency, visitState, stack, cycle))
                 {
                     std::ostringstream stream;
                     stream << "Cycle detected in blocker relations:";
-                    for (std::size_t i = 0; i < cycle.size(); ++i)
+                    bool isFirstCycleNode = true;
+                    for (const int cycleId : cycle)
                     {
-                        stream << (i == 0 ? " " : " -> ") << cycle[i];
+                        stream << (isFirstCycleNode ? " " : " -> ") << cycleId;
+                        isFirstCycleNode = false;
                     }
                     addError(outErrors, stream.str());
                     break;
@@ -301,24 +291,26 @@ namespace cardgame
             visitState.clear();
             stack.clear();
             cycle.clear();
-            for (CardLookup::const_iterator it = cardLookup.begin(); it != cardLookup.end(); ++it)
+            for (const auto &entry : cardLookup)
             {
-                visitState[it->first] = 0;
+                visitState[entry.first] = 0;
             }
 
-            for (CardLookup::const_iterator it = cardLookup.begin(); it != cardLookup.end(); ++it)
+            for (const auto &entry : cardLookup)
             {
-                if (visitState[it->first] != 0)
+                if (visitState[entry.first] != 0)
                 {
                     continue;
                 }
-                if (detectCycleDfs(it->first, childAdjacency, visitState, stack, cycle))
+                if (detectCycleDfs(entry.first, childAdjacency, visitState, stack, cycle))
                 {
                     std::ostringstream stream;
                     stream << "Cycle detected in child relations:";
-                    for (std::size_t i = 0; i < cycle.size(); ++i)
+                    bool isFirstCycleNode = true;
+                    for (const int cycleId : cycle)
                     {
-                        stream << (i == 0 ? " " : " -> ") << cycle[i];
+                        stream << (isFirstCycleNode ? " " : " -> ") << cycleId;
+                        isFirstCycleNode = false;
                     }
                     addError(outErrors, stream.str());
                     break;

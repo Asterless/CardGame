@@ -1,16 +1,28 @@
-#ifndef __CARDGAME_LEVEL_LOADER_H__
-#define __CARDGAME_LEVEL_LOADER_H__
+#ifndef CARDGAME_LEVEL_LOADER_H
+#define CARDGAME_LEVEL_LOADER_H
 
 #include "data/LevelDefinition.h"
+#include "support/Optional.h"
 
 #include <string>
 
 namespace cardgame
 {
+    struct LevelLoadResult
+    {
+        Optional<LevelDefinition> definition;
+        std::string errorMessage;
+
+        explicit operator bool() const
+        {
+            return definition.has_value();
+        }
+    };
+
     class LevelLoader
     {
     public:
-        static bool loadFromJsonFile(const std::string &path, LevelDefinition &outDefinition, std::string *outErrorMessage = nullptr);
+        static LevelLoadResult loadFromJsonFile(const std::string &path);
     };
 }
 

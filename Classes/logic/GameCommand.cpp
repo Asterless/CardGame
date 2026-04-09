@@ -2,20 +2,20 @@
 
 namespace cardgame
 {
-    const GameDelta &GameCommand::getDelta() const
+    const Optional<GameDelta> &GameCommand::getDelta() const
     {
         return _delta;
     }
 
     bool DrawStockCommand::execute(GameState &state)
     {
-        _delta = GameDelta();
-        return state.drawFromStock(_delta);
+        _delta = state.drawFromStock();
+        return _delta.has_value();
     }
 
     bool DrawStockCommand::undo(GameState &state)
     {
-        return state.undoDrawFromStock(_delta);
+        return _delta.has_value() && state.undoDrawFromStock(*_delta);
     }
 
     MatchTableauCommand::MatchTableauCommand(int cardId)
@@ -25,12 +25,12 @@ namespace cardgame
 
     bool MatchTableauCommand::execute(GameState &state)
     {
-        _delta = GameDelta();
-        return state.matchTableau(_cardId, _delta);
+        _delta = state.matchTableau(_cardId);
+        return _delta.has_value();
     }
 
     bool MatchTableauCommand::undo(GameState &state)
     {
-        return state.undoMatchTableau(_delta);
+        return _delta.has_value() && state.undoMatchTableau(*_delta);
     }
 }

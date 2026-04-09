@@ -1,6 +1,7 @@
-#ifndef __CARDGAME_GAME_OVERLAY_VIEW_H__
-#define __CARDGAME_GAME_OVERLAY_VIEW_H__
+#ifndef CARDGAME_GAME_OVERLAY_VIEW_H
+#define CARDGAME_GAME_OVERLAY_VIEW_H
 
+#include "support/ObserverPtr.h"
 #include "cocos2d.h"
 
 #include <functional>
@@ -28,9 +29,10 @@ namespace cardgame
         void onReplayClicked(cocos2d::Ref *sender);
 
     private:
-        cocos2d::MenuItemLabel *_undoItem = nullptr;
-        cocos2d::Menu *_controlMenu = nullptr;
-        cocos2d::Node *_completionOverlay = nullptr;
+        // Non-owning node references. cocos2d-x retains them via the scene graph.
+        ObserverPtr<cocos2d::MenuItemLabel> _undoItem = nullptr;
+        ObserverPtr<cocos2d::Menu> _controlMenu = nullptr;
+        ObserverPtr<cocos2d::Node> _completionOverlay = nullptr;
         std::function<void()> _onUndo;
         std::function<void()> _onReset;
         std::function<void()> _onReplay;

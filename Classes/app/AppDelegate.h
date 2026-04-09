@@ -22,8 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _APP_DELEGATE_H_
-#define _APP_DELEGATE_H_
+#ifndef CARDGAME_APP_DELEGATE_H
+#define CARDGAME_APP_DELEGATE_H
 
 #include "cocos2d.h"
 
@@ -32,32 +32,32 @@
 
 这里使用私有继承，避免直接暴露完整的 Application 接口。
 */
-class AppDelegate : private cocos2d::Application
+class AppDelegate : public cocos2d::Application
 {
 public:
     AppDelegate();
-    virtual ~AppDelegate();
+    ~AppDelegate() override;
 
-    virtual void initGLContextAttrs();
+    void initGLContextAttrs() override;
 
     /**
     @brief 在这里完成 Director 和主场景初始化。
     @return true 初始化成功，应用继续运行。
     @return false 初始化失败，应用终止。
     */
-    virtual bool applicationDidFinishLaunching();
+    bool applicationDidFinishLaunching() override;
 
     /**
     @brief 应用切到后台时调用。
     @param the pointer of the application
     */
-    virtual void applicationDidEnterBackground();
+    void applicationDidEnterBackground() override;
 
     /**
     @brief 应用回到前台时调用。
     @param the pointer of the application
     */
-    virtual void applicationWillEnterForeground();
+    void applicationWillEnterForeground() override;
 };
 
-#endif // _APP_DELEGATE_H_
+#endif // CARDGAME_APP_DELEGATE_H

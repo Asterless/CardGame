@@ -83,8 +83,7 @@ namespace cardgame
                 }
 
                 GameState nextState = state;
-                GameDelta delta;
-                if (nextState.matchTableau(cardId, delta) && canClearTableauRecursive(nextState, visited))
+                if (nextState.matchTableau(cardId).has_value() && canClearTableauRecursive(nextState, visited))
                 {
                     return true;
                 }
@@ -93,8 +92,7 @@ namespace cardgame
             if (state.canDrawFromStock())
             {
                 GameState nextState = state;
-                GameDelta delta;
-                if (nextState.drawFromStock(delta) && canClearTableauRecursive(nextState, visited))
+                if (nextState.drawFromStock().has_value() && canClearTableauRecursive(nextState, visited))
                 {
                     return true;
                 }

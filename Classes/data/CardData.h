@@ -1,5 +1,5 @@
-#ifndef __CARDGAME_CARD_DATA_H__
-#define __CARDGAME_CARD_DATA_H__
+#ifndef CARDGAME_CARD_DATA_H
+#define CARDGAME_CARD_DATA_H
 
 #include "data/CardTypes.h"
 

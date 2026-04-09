@@ -53,10 +53,10 @@ namespace cardgame
                 return normalizedDirectory;
             }
 
-            const std::vector<std::string> &searchPaths = fileUtils->getSearchPaths();
-            for (std::size_t i = 0; i < searchPaths.size(); ++i)
+            const auto &searchPaths = fileUtils->getSearchPaths();
+            for (const auto &searchPath : searchPaths)
             {
-                const std::string candidate = ensureTrailingSlash(searchPaths[i]) + normalizedDirectory;
+                const std::string candidate = ensureTrailingSlash(searchPath) + normalizedDirectory;
                 if (fileUtils->isDirectoryExist(candidate))
                 {
                     return candidate;
@@ -78,13 +78,14 @@ namespace cardgame
         LevelInspectionResult result;
         result.path = path;
 
-        std::string loadErrorMessage;
-        if (!LevelLoader::loadFromJsonFile(path, result.definition, &loadErrorMessage))
+        const LevelLoadResult loadResult = LevelLoader::loadFromJsonFile(path);
+        if (!loadResult)
         {
-            result.errors.push_back(loadErrorMessage);
+            result.errors.push_back(loadResult.errorMessage);
             return result;
         }
 
+        result.definition = *loadResult.definition;
         result.loadSucceeded = true;
         result.levelId = result.definition.levelId;
         result.valid = LevelValidator::validate(result.definition, result.errors);
@@ -105,11 +106,10 @@ namespace cardgame
             return results;
         }
 
-        std::vector<std::string> paths = cocos2d::FileUtils::getInstance()->listFiles(resolvedDirectory);
+        const auto paths = cocos2d::FileUtils::getInstance()->listFiles(resolvedDirectory);
 
-        for (std::size_t i = 0; i < paths.size(); ++i)
+        for (const auto &path : paths)
         {
-            const std::string &path = paths[i];
             if (isDirectoryPath(path) || !isJsonFile(path))
             {
                 continue;

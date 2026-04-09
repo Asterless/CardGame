@@ -1,5 +1,5 @@
-#ifndef __CARDGAME_LEVEL_SESSION_LOADER_H__
-#define __CARDGAME_LEVEL_SESSION_LOADER_H__
+#ifndef CARDGAME_LEVEL_SESSION_LOADER_H
+#define CARDGAME_LEVEL_SESSION_LOADER_H
 
 #include "data/LevelDefinition.h"
 #include "logic/GameState.h"

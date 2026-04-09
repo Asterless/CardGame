@@ -23,13 +23,15 @@ namespace
     std::string joinMessages(const std::vector<std::string> &messages)
     {
         std::ostringstream stream;
-        for (std::size_t i = 0; i < messages.size(); ++i)
+        bool isFirstMessage = true;
+        for (const auto &message : messages)
         {
-            if (i > 0)
+            if (!isFirstMessage)
             {
                 stream << " | ";
             }
-            stream << messages[i];
+            stream << message;
+            isFirstMessage = false;
         }
 
         return stream.str();
@@ -115,9 +117,9 @@ bool CardGameScene::init()
     }
 
     const cardgame::LevelSessionLoadResult loadResult = cardgame::LevelSessionLoader::load("res/levels/", "res/levels/demo_level.json");
-    for (std::size_t i = 0; i < loadResult.logs.size(); ++i)
+    for (const auto &log : loadResult.logs)
     {
-        CCLOG("%s", loadResult.logs[i].c_str());
+        CCLOG("%s", log.c_str());
     }
 
     if (!loadResult.errors.empty())
@@ -161,47 +163,48 @@ void CardGameScene::applyLevelLayout(const cardgame::LevelDefinition &definition
     // 先落默认值，再用关卡配置覆盖，避免关卡漏字段时场景不可用。
     applyDefaultLayout();
 
-    if (definition.layout.hasCardSize && definition.layout.cardSize.width > 0.0f && definition.layout.cardSize.height > 0.0f)
+    if (definition.layout.cardSize.has_value() &&
+        definition.layout.cardSize->width > 0.0f &&
+        definition.layout.cardSize->height > 0.0f)
     {
-        _cardSize = Size(definition.layout.cardSize.width, definition.layout.cardSize.height);
+        _cardSize = Size(definition.layout.cardSize->width, definition.layout.cardSize->height);
     }
 
-    if (definition.layout.hasStockBasePosition)
+    if (definition.layout.stockBasePosition.has_value())
     {
-        _stockBasePosition = Vec2(definition.layout.stockBasePosition.x, definition.layout.stockBasePosition.y);
+        _stockBasePosition = Vec2(definition.layout.stockBasePosition->x, definition.layout.stockBasePosition->y);
     }
 
-    if (definition.layout.hasWasteBasePosition)
+    if (definition.layout.wasteBasePosition.has_value())
     {
-        _wasteBasePosition = Vec2(definition.layout.wasteBasePosition.x, definition.layout.wasteBasePosition.y);
+        _wasteBasePosition = Vec2(definition.layout.wasteBasePosition->x, definition.layout.wasteBasePosition->y);
     }
 
-    if (definition.layout.hasStockPileDepthOffset)
+    if (definition.layout.stockPileDepthOffset.has_value())
     {
-        _stockPileDepthOffset = Vec2(definition.layout.stockPileDepthOffset.x, definition.layout.stockPileDepthOffset.y);
+        _stockPileDepthOffset = Vec2(definition.layout.stockPileDepthOffset->x, definition.layout.stockPileDepthOffset->y);
     }
 
-    if (definition.layout.hasWastePileDepthOffset)
+    if (definition.layout.wastePileDepthOffset.has_value())
     {
-        _wastePileDepthOffset = Vec2(definition.layout.wastePileDepthOffset.x, definition.layout.wastePileDepthOffset.y);
+        _wastePileDepthOffset = Vec2(definition.layout.wastePileDepthOffset->x, definition.layout.wastePileDepthOffset->y);
     }
 
-    if (definition.layout.hasCoveredCardOffset)
+    if (definition.layout.coveredCardOffset.has_value())
     {
-        _coveredCardOffset = Vec2(definition.layout.coveredCardOffset.x, definition.layout.coveredCardOffset.y);
+        _coveredCardOffset = Vec2(definition.layout.coveredCardOffset->x, definition.layout.coveredCardOffset->y);
     }
 
-    if (definition.layout.hasControlMenuPosition)
+    if (definition.layout.controlMenuPosition.has_value())
     {
-        _controlMenuPosition = Vec2(definition.layout.controlMenuPosition.x, definition.layout.controlMenuPosition.y);
+        _controlMenuPosition = Vec2(definition.layout.controlMenuPosition->x, definition.layout.controlMenuPosition->y);
     }
 
     if (!definition.layout.tableauPositions.empty())
     {
         _tableauPositions.clear();
-        for (std::size_t i = 0; i < definition.layout.tableauPositions.size(); ++i)
+        for (const auto &point : definition.layout.tableauPositions)
         {
-            const cardgame::LevelVector2 &point = definition.layout.tableauPositions[i];
             _tableauPositions.push_back(Vec2(point.x, point.y));
         }
     }
@@ -254,12 +257,12 @@ void CardGameScene::buildBackground()
 
 void CardGameScene::createCardViews()
 {
-    const std::unordered_map<int, cardgame::CardData> &cards = _state.getCards();
-    for (std::unordered_map<int, cardgame::CardData>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    const auto &cards = _state.getCards();
+    for (const auto &entry : cards)
     {
-        cardgame::CardView *view = cardgame::CardView::create(_cardSize);
+        auto *view = cardgame::CardView::create(_cardSize);
         _cardLayer->addChild(view);
-        _cardViews[it->first] = view;
+        _cardViews[entry.first] = view;
     }
 }
 
@@ -342,17 +345,16 @@ bool CardGameScene::tryHandleCardTap(const Vec2 &worldPoint)
         cardgame::CardView *stockView = _cardViews[stockTopId];
         if (stockView != nullptr && stockView->isVisible() && stockView->hitTest(worldPoint))
         {
-            executeCommand(cardgame::GameCommandPtr(new cardgame::DrawStockCommand()));
+            executeCommand(std::make_shared<cardgame::DrawStockCommand>());
             return true;
         }
     }
 
-    const std::vector<int> &tableauSlots = _state.getTableauSlots();
+    const auto &tableauSlots = _state.getTableauSlots();
     std::vector<int> hitOrder;
     hitOrder.reserve(tableauSlots.size());
-    for (std::size_t i = 0; i < tableauSlots.size(); ++i)
+    for (const int cardId : tableauSlots)
     {
-        const int cardId = tableauSlots[i];
         if (cardId < 0)
         {
             continue;
@@ -375,10 +377,8 @@ bool CardGameScene::tryHandleCardTap(const Vec2 &worldPoint)
 
         return lhs > rhs; });
 
-    for (std::size_t i = 0; i < hitOrder.size(); ++i)
+    for (const int cardId : hitOrder)
     {
-        const int cardId = hitOrder[i];
-
         cardgame::CardView *view = _cardViews[cardId];
         const cardgame::CardData *card = _state.getCard(cardId);
         if (view == nullptr || card == nullptr || !view->isVisible() || !view->hitTest(worldPoint))
@@ -398,7 +398,7 @@ bool CardGameScene::tryHandleCardTap(const Vec2 &worldPoint)
             return true;
         }
 
-        executeCommand(cardgame::GameCommandPtr(new cardgame::MatchTableauCommand(cardId)));
+        executeCommand(std::make_shared<cardgame::MatchTableauCommand>(cardId));
         return true;
     }
 
@@ -427,16 +427,21 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()> &
 {
     _inputLocked = animated;
 
-    std::shared_ptr<int> pendingAnimations(new int(0));
-    std::shared_ptr<bool> completionCalled(new bool(false));
-    std::function<void()> finish = [this, completion, pendingAnimations, completionCalled]()
+    struct RefreshState
     {
-        if (*completionCalled)
+        int pendingAnimations = 0;
+        bool completionCalled = false;
+    };
+
+    const auto refreshState = std::make_shared<RefreshState>();
+    std::function<void()> finish = [this, completion, refreshState]()
+    {
+        if (refreshState->completionCalled)
         {
             return;
         }
 
-        *completionCalled = true;
+        refreshState->completionCalled = true;
         _inputLocked = false;
         updateCompletionOverlay();
         updateHudText();
@@ -448,10 +453,10 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()> &
     };
 
     // 每次都从最新状态重新计算所有牌的位置，这样 Undo 只需要恢复数据，不需要记录动画轨迹。
-    const std::unordered_map<int, cardgame::CardData> &cards = _state.getCards();
-    for (std::unordered_map<int, cardgame::CardData>::const_iterator it = cards.begin(); it != cards.end(); ++it)
+    const auto &cards = _state.getCards();
+    for (const auto &entry : cards)
     {
-        const cardgame::CardData &card = it->second;
+        const auto &card = entry.second;
         cardgame::CardView *view = _cardViews[card.id];
         if (view == nullptr)
         {
@@ -459,7 +464,7 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()> &
         }
 
         const CardPlacement placement = computePlacement(card);
-        view->syncWithCard(card, placement.clickable, placement.isWasteTop);
+        view->syncWithCard(card, placement.clickable);
         view->setLocalZOrder(placement.zOrder);
         view->setVisible(placement.visible);
         view->stopAllActions();
@@ -475,20 +480,20 @@ void CardGameScene::refreshAllViews(bool animated, const std::function<void()> &
             continue;
         }
 
-        ++(*pendingAnimations);
+        ++refreshState->pendingAnimations;
         view->runAction(Sequence::create(
             MoveTo::create(kMoveDuration, placement.position),
-            CallFunc::create([pendingAnimations, finish]()
+            CallFunc::create([refreshState, finish]()
                              {
-                --(*pendingAnimations);
-                if (*pendingAnimations == 0)
+                --refreshState->pendingAnimations;
+                if (refreshState->pendingAnimations == 0)
                 {
                     finish();
                 } }),
             nullptr));
     }
 
-    if (!animated || *pendingAnimations == 0)
+    if (!animated || refreshState->pendingAnimations == 0)
     {
         finish();
     }
@@ -503,9 +508,9 @@ cocos2d::Vec2 CardGameScene::computeTableauPosition(const cardgame::CardData &ca
 
     Vec2 blockerCenter = Vec2::ZERO;
     int validBlockerCount = 0;
-    for (std::size_t i = 0; i < card.blockers.size(); ++i)
+    for (const int blockerId : card.blockers)
     {
-        const cardgame::CardData *blocker = _state.getCard(card.blockers[i]);
+        const cardgame::CardData *blocker = _state.getCard(blockerId);
         if (blocker == nullptr || blocker->tableauIndex < 0 || blocker->tableauIndex >= static_cast<int>(_tableauPositions.size()))
         {
             continue;
@@ -581,7 +586,6 @@ CardGameScene::CardPlacement CardGameScene::computePlacement(const cardgame::Car
             _wastePileDepthOffset.y);
         placement.zOrder = 300 + static_cast<int>(i);
         placement.visible = true;
-        placement.isWasteTop = i + 1 == wastePile.size();
         placement.clickable = false;
         return placement;
     }

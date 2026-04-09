@@ -1,7 +1,8 @@
-#ifndef __CARDGAME_LEVEL_DEFINITION_H__
-#define __CARDGAME_LEVEL_DEFINITION_H__
+#ifndef CARDGAME_LEVEL_DEFINITION_H
+#define CARDGAME_LEVEL_DEFINITION_H
 
 #include "data/CardTypes.h"
+#include "support/Optional.h"
 
 #include <string>
 #include <vector>
@@ -23,20 +24,13 @@ namespace cardgame
     struct LevelLayoutDefinition
     {
         // 关卡布局配置。未来新增牌位、牌堆位置时优先扩展这里，而不是写死在场景里。
-        LevelSize cardSize;
-        bool hasCardSize = false;
-        LevelVector2 stockBasePosition;
-        bool hasStockBasePosition = false;
-        LevelVector2 wasteBasePosition;
-        bool hasWasteBasePosition = false;
-        LevelVector2 stockPileDepthOffset;
-        bool hasStockPileDepthOffset = false;
-        LevelVector2 wastePileDepthOffset;
-        bool hasWastePileDepthOffset = false;
-        LevelVector2 coveredCardOffset;
-        bool hasCoveredCardOffset = false;
-        LevelVector2 controlMenuPosition;
-        bool hasControlMenuPosition = false;
+        Optional<LevelSize> cardSize;
+        Optional<LevelVector2> stockBasePosition;
+        Optional<LevelVector2> wasteBasePosition;
+        Optional<LevelVector2> stockPileDepthOffset;
+        Optional<LevelVector2> wastePileDepthOffset;
+        Optional<LevelVector2> coveredCardOffset;
+        Optional<LevelVector2> controlMenuPosition;
         std::vector<LevelVector2> tableauPositions;
     };
 

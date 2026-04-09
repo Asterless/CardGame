@@ -50,9 +50,9 @@ namespace cardgame
         state._stockPile = definition.stockPile;
         state._wastePile = definition.wastePile;
 
-        for (std::size_t i = 0; i < definition.cards.size(); ++i)
+        for (const auto &cardDefinition : definition.cards)
         {
-            state.addCard(makeCardData(definition.cards[i]));
+            state.addCard(makeCardData(cardDefinition));
         }
 
         state.refreshPileFaces();
@@ -61,13 +61,13 @@ namespace cardgame
 
     const CardData *GameState::getCard(int cardId) const
     {
-        std::unordered_map<int, CardData>::const_iterator it = _cards.find(cardId);
+        const auto it = _cards.find(cardId);
         return it == _cards.end() ? nullptr : &it->second;
     }
 
     CardData *GameState::getMutableCard(int cardId)
     {
-        std::unordered_map<int, CardData>::iterator it = _cards.find(cardId);
+        const auto it = _cards.find(cardId);
         return it == _cards.end() ? nullptr : &it->second;
     }
 
@@ -103,9 +103,9 @@ namespace cardgame
 
     bool GameState::isTableauCleared() const
     {
-        for (std::size_t i = 0; i < _tableauSlots.size(); ++i)
+        for (const int cardId : _tableauSlots)
         {
-            if (_tableauSlots[i] >= 0)
+            if (cardId >= 0)
             {
                 return false;
             }
@@ -135,36 +135,36 @@ namespace cardgame
         return areRanksAdjacent(card->rank, wasteTop->rank);
     }
 
-    bool GameState::drawFromStock(GameDelta &outDelta)
+    Optional<GameDelta> GameState::drawFromStock()
     {
         if (_stockPile.empty())
         {
-            return false;
+            return nullopt;
         }
 
         const int cardId = _stockPile.back();
-        _stockPile.pop_back();
-        _wastePile.push_back(cardId);
-
         CardData *card = getMutableCard(cardId);
         if (card == nullptr)
         {
-            return false;
+            return nullopt;
         }
 
+        _stockPile.pop_back();
+        _wastePile.push_back(cardId);
         card->zone = CardZone::Waste;
-        outDelta.valid = true;
-        outDelta.type = GameActionType::DrawStock;
-        outDelta.movedCardId = cardId;
-        outDelta.previousWasteTopId = _wastePile.size() > 1 ? _wastePile[_wastePile.size() - 2] : -1;
-        outDelta.sourceIndex = static_cast<int>(_stockPile.size());
+
+        GameDelta delta;
+        delta.type = GameActionType::DrawStock;
+        delta.movedCardId = cardId;
+        delta.previousWasteTopId = _wastePile.size() > 1 ? _wastePile[_wastePile.size() - 2] : -1;
+        delta.sourceIndex = static_cast<int>(_stockPile.size());
         refreshPileFaces();
-        return true;
+        return delta;
     }
 
     bool GameState::undoDrawFromStock(const GameDelta &delta)
     {
-        if (!delta.valid || delta.type != GameActionType::DrawStock || _wastePile.empty() || _wastePile.back() != delta.movedCardId)
+        if (delta.type != GameActionType::DrawStock || _wastePile.empty() || _wastePile.back() != delta.movedCardId)
         {
             return false;
         }
@@ -183,36 +183,37 @@ namespace cardgame
         return true;
     }
 
-    bool GameState::matchTableau(int cardId, GameDelta &outDelta)
+    Optional<GameDelta> GameState::matchTableau(int cardId)
     {
         if (!canMatchTableau(cardId))
         {
-            return false;
+            return nullopt;
         }
 
         CardData *card = getMutableCard(cardId);
         if (card == nullptr)
         {
-            return false;
+            return nullopt;
         }
 
         _tableauSlots[card->tableauIndex] = -1;
         _wastePile.push_back(cardId);
 
         card->zone = CardZone::Waste;
-        outDelta.valid = true;
-        outDelta.type = GameActionType::MatchTableau;
-        outDelta.movedCardId = cardId;
-        outDelta.previousWasteTopId = _wastePile.size() > 1 ? _wastePile[_wastePile.size() - 2] : -1;
-        outDelta.sourceIndex = card->tableauIndex;
-        revealChildrenIfNeeded(cardId, outDelta.revealedCardIds);
+
+        GameDelta delta;
+        delta.type = GameActionType::MatchTableau;
+        delta.movedCardId = cardId;
+        delta.previousWasteTopId = _wastePile.size() > 1 ? _wastePile[_wastePile.size() - 2] : -1;
+        delta.sourceIndex = card->tableauIndex;
+        revealChildrenIfNeeded(cardId, delta.revealedCardIds);
         refreshPileFaces();
-        return true;
+        return delta;
     }
 
     bool GameState::undoMatchTableau(const GameDelta &delta)
     {
-        if (!delta.valid || delta.type != GameActionType::MatchTableau || _wastePile.empty() || _wastePile.back() != delta.movedCardId)
+        if (delta.type != GameActionType::MatchTableau || _wastePile.empty() || _wastePile.back() != delta.movedCardId)
         {
             return false;
         }
@@ -252,9 +253,9 @@ namespace cardgame
             return false;
         }
 
-        for (std::size_t i = 0; i < card->blockers.size(); ++i)
+        for (const int blockerId : card->blockers)
         {
-            const CardData *blocker = getCard(card->blockers[i]);
+            const CardData *blocker = getCard(blockerId);
             if (blocker != nullptr && blocker->zone == CardZone::Tableau)
             {
                 return false;
@@ -271,9 +272,9 @@ namespace cardgame
             return;
         }
 
-        for (std::size_t i = 0; i < parent->children.size(); ++i)
+        for (const int childId : parent->children)
         {
-            CardData *child = getMutableCard(parent->children[i]);
+            CardData *child = getMutableCard(childId);
             if (child != nullptr && child->zone == CardZone::Tableau && !child->faceUp && isCardUnblocked(child->id))
             {
                 child->faceUp = true;
@@ -284,9 +285,9 @@ namespace cardgame
 
     void GameState::restoreHiddenState(const std::vector<int> &cardIds)
     {
-        for (std::size_t i = 0; i < cardIds.size(); ++i)
+        for (const int cardId : cardIds)
         {
-            CardData *card = getMutableCard(cardIds[i]);
+            CardData *card = getMutableCard(cardId);
             if (card != nullptr && card->zone == CardZone::Tableau)
             {
                 card->faceUp = false;
